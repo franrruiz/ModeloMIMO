@@ -1,0 +1,902 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>readClusterSynFFBS</title><meta name="generator" content="MATLAB 7.9"><meta name="date" content="2015-03-06"><meta name="m-file" content="readClusterSynFFBS"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Scenario definition</a></li><li><a href="#3">Initialize metrics of interest</a></li><li><a href="#4">Load results</a></li><li><a href="#5">Remove not found itCluster's</a></li><li><a href="#6">For fixed values of the hold variable, plot the metrics vs the sweep variable</a></li></ul></div><pre class="codeinput">clear <span class="string">all</span>;
+close <span class="string">all</span>;
+clc
+addpath <span class="string">aboxplot</span>;
+
+maxItCluster = 50;
+Niter =  10000;
+</pre><pre class="codeoutput">Error: File: /Users/franrruiz87/Documents/Mis Documentos/Tesis Doctoral/codigo/ModeloMIMO/cluster/readClusterSynFFBS.m Line: 378 Column: 13
+Unbalanced or unexpected parenthesis or bracket.
+</pre><h2>Scenario definition<a name="2"></a></h2><pre class="codeinput"><span class="comment">%%%%%%%%%%%%%%%</span>
+plotToFile = 0;
+<span class="comment">%%%%%%%%%%%%%%%</span>
+
+<span class="comment">%Base scenario</span>
+T = 500;
+Nt = 5;
+SNR = 0;
+Nr = 10;
+L = 1;
+Ltrue = 1;
+M = 2;
+lHead = 0;
+onOffModel = 0;
+
+<span class="comment">% Sweep and hold variables:</span>
+sweep_var = <span class="string">'L'</span>; sweep_vec = 1:2; simId = 9; etiquetaX=<span class="string">'L'</span>; lugar=<span class="string">'NorthEast'</span>; hold_var=<span class="string">'SNR'</span>; hold_vec=0;
+
+marcadores = {<span class="string">'+'</span>,<span class="string">'^'</span>,<span class="string">'o'</span>};
+estilos = {<span class="string">'-'</span>,<span class="string">'--'</span>,<span class="string">':'</span>};
+colores = {<span class="string">'m'</span>,<span class="string">'b'</span>,<span class="string">'k'</span>};
+leyenda = {<span class="string">'PGAS'</span>,<span class="string">'FFBS'</span>};
+anchoSm = 3; altoSm = 2;
+anchoLar = 5; altoLar = 3.5;
+</pre><h2>Initialize metrics of interest<a name="3"></a></h2><pre class="codeinput">ALL_ADER = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_MMSE = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_LLH = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_SER_ALL = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_SER_ACT = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_MEST = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+
+ALL_ADER_FFBS = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_SER_ALL_FFBS = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_SER_ACT_FFBS = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_MMSE_FFBS = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_LLH_FFBS = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_MEST_FFBS = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+</pre><h2>Load results<a name="4"></a></h2><pre class="codeinput">idxItClusterNotFound = [];
+<span class="keyword">for</span> sweepV=sweep_vec
+    idxSweep = find(sweep_vec==sweepV);
+
+    <span class="comment">% Go back to base configuration</span>
+    Taux = T;
+    Ntaux = Nt;
+    SNRaux = SNR;
+    Nraux = Nr;
+    Laux = L;
+    Ltrueaux = L;
+    Maux = M;
+    lHeadaux = lHead;
+    onOffModelaux = onOffModel;
+
+    <span class="comment">% Modify the sweep variable</span>
+    <span class="keyword">if</span>(strcmp(sweep_var,<span class="string">'T'</span>))
+        Taux = sweepV;
+    <span class="keyword">elseif</span>(strcmp(sweep_var,<span class="string">'Nt'</span>))
+        Ntaux = sweepV;
+    <span class="keyword">elseif</span>(strcmp(sweep_var,<span class="string">'SNR'</span>))
+        SNRaux = sweepV;
+    <span class="keyword">elseif</span>(strcmp(sweep_var,<span class="string">'Nr'</span>))
+        Nraux = sweepV;
+    <span class="keyword">elseif</span>(strcmp(sweep_var,<span class="string">'L'</span>))
+        Laux = sweepV;
+        Ltrueaux = sweepV;
+    <span class="keyword">elseif</span>(strcmp(sweep_var,<span class="string">'Ltrue'</span>))
+        Ltrueaux = sweepV;
+    <span class="keyword">elseif</span>(strcmp(sweep_var,<span class="string">'M'</span>))
+        Maux = sweepV;
+    <span class="keyword">elseif</span>(strcmp(sweep_var,<span class="string">'lHead'</span>))
+        lHeadaux = sweepV;
+    <span class="keyword">elseif</span>(strcmp(sweep_var,<span class="string">'onOffModel'</span>))
+        onOffModelaux = sweepV;
+    <span class="keyword">else</span>
+        error(<span class="string">'Not valid value for sweep_var'</span>)
+    <span class="keyword">end</span>
+
+    <span class="keyword">for</span> holdV=hold_vec
+        idxHold = find(hold_vec==holdV);
+
+        <span class="comment">% Modify the hold variable</span>
+        <span class="keyword">if</span>(strcmp(hold_var,<span class="string">'T'</span>))
+            Taux = holdV;
+        <span class="keyword">elseif</span>(strcmp(hold_var,<span class="string">'Nt'</span>))
+            Ntaux = holdV;
+        <span class="keyword">elseif</span>(strcmp(hold_var,<span class="string">'SNR'</span>))
+            SNRaux = holdV;
+        <span class="keyword">elseif</span>(strcmp(hold_var,<span class="string">'Nr'</span>))
+            Nraux = holdV;
+        <span class="keyword">elseif</span>(strcmp(hold_var,<span class="string">'L'</span>))
+            Laux = holdV;
+        <span class="keyword">elseif</span>(strcmp(hold_var,<span class="string">'Ltrue'</span>))
+            Ltrueaux = holdV;
+        <span class="keyword">elseif</span>(strcmp(hold_var,<span class="string">'M'</span>))
+            Maux = holdV;
+        <span class="keyword">elseif</span>(strcmp(hold_var,<span class="string">'lHead'</span>))
+            lHeadaux = holdV;
+        <span class="keyword">elseif</span>(strcmp(hold_var,<span class="string">'onOffModel'</span>))
+            onOffModelaux = holdV;
+        <span class="keyword">else</span>
+            error(<span class="string">'Not valid value for hold_var'</span>)
+        <span class="keyword">end</span>
+
+        <span class="comment">% Load all itCluster's for the given configuration</span>
+        <span class="keyword">for</span> itCluster=1:maxItCluster
+
+
+            saveFile = [<span class="string">'/export/clusterdata/franrruiz87/ModeloMIMO/results/synthetic/'</span> num2str(simId)<span class="keyword">...</span>
+                        <span class="string">'/T'</span> num2str(Taux) <span class="string">'_Nt'</span> num2str(Ntaux) <span class="string">'_Nr'</span> num2str(Nraux) <span class="string">'_M'</span> num2str(Maux) <span class="string">'_Ltrue'</span> num2str(Ltrueaux) <span class="string">'_L'</span> num2str(Laux) <span class="string">'_SNR'</span> num2str(SNRaux) <span class="string">'_lHead'</span> num2str(lHeadaux), <span class="string">'_onOff'</span> num2str(onOffModelaux) <span class="keyword">...</span>
+                        <span class="string">'/itCluster'</span> num2str(itCluster) <span class="string">'.mat'</span>];
+
+            <span class="keyword">if</span>(exist(saveFile,<span class="string">'file'</span>))
+                load(saveFile,<span class="string">'ADER'</span>,<span class="string">'MMSE'</span>,<span class="string">'SER_ACT'</span>,<span class="string">'SER_ALL'</span>,<span class="string">'LLH'</span>,<span class="string">'M_EST'</span>);
+                ALL_ADER(itCluster,:,idxSweep,idxHold) = ADER;
+                ALL_MMSE(itCluster,:,idxSweep,idxHold) = MMSE;
+                ALL_LLH(itCluster,:,idxSweep,idxHold) = LLH;
+                ALL_SER_ALL(itCluster,:,idxSweep,idxHold) = SER_ALL;
+                ALL_SER_ACT(itCluster,:,idxSweep,idxHold) = SER_ACT;
+                ALL_MEST(itCluster,:,idxSweep,idxHold) = M_EST;
+
+                <span class="keyword">if</span>(exist([saveFile(1:end-4) <span class="string">'FFBS.mat'</span>],<span class="string">'file'</span>))
+                    load([saveFile(1:end-4) <span class="string">'FFBS.mat'</span>],<span class="string">'ADER'</span>,<span class="string">'MMSE'</span>,<span class="string">'SER_ACT'</span>,<span class="string">'SER_ALL'</span>,<span class="string">'LLH'</span>,<span class="string">'M_EST'</span>);
+                    ALL_ADER_FFBS(itCluster,:,idxSweep,idxHold) = ADER;
+                    ALL_SER_ALL_FFBS(itCluster,:,idxSweep,idxHold) = SER_ALL;
+                    ALL_SER_ACT_FFBS(itCluster,:,idxSweep,idxHold) = SER_ACT;
+                    ALL_MMSE_FFBS(itCluster,:,idxSweep,idxHold) = MMSE;
+                    ALL_LLH_FFBS(itCluster,:,idxSweep,idxHold) = LLH;
+                    ALL_MEST_FFBS(itCluster,:,idxSweep,idxHold) = M_EST;
+                <span class="keyword">else</span>
+                    idxItClusterNotFound = unique([idxItClusterNotFound itCluster]);
+                    disp([<span class="string">'File '</span> saveFile(1:end-4) <span class="string">'FFBS.mat'</span> <span class="string">' not found'</span>]);
+                <span class="keyword">end</span>
+            <span class="keyword">else</span>
+                idxItClusterNotFound = unique([idxItClusterNotFound itCluster]);
+                disp([<span class="string">'File '</span> saveFile <span class="string">' not found'</span>]);
+            <span class="keyword">end</span>
+        <span class="keyword">end</span>
+
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+</pre><h2>Remove not found itCluster's<a name="5"></a></h2><pre class="codeinput"><span class="keyword">if</span>(~isempty(idxItClusterNotFound))
+    disp([<span class="string">'WARNING: Removing '</span> num2str(length(idxItClusterNotFound)) <span class="string">' simulations. Total is now: '</span> num2str(maxItCluster-length(idxItClusterNotFound))]);
+<span class="keyword">end</span>
+ALL_ADER(idxItClusterNotFound,:,:,:) = [];
+ALL_MMSE(idxItClusterNotFound,:,:,:) = [];
+ALL_LLH(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ALL(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ACT(idxItClusterNotFound,:,:,:) = [];
+ALL_MEST(idxItClusterNotFound,:,:,:) = [];
+
+ALL_ADER_FFBS(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ALL_FFBS(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ACT_FFBS(idxItClusterNotFound,:,:,:) = [];
+ALL_MMSE_FFBS(idxItClusterNotFound,:,:,:) = [];
+ALL_LLH_FFBS(idxItClusterNotFound,:,:,:) = [];
+ALL_MEST_FFBS(idxItClusterNotFound,:,:,:) = [];
+</pre><h2>For fixed values of the hold variable, plot the metrics vs the sweep variable<a name="6"></a></h2><pre class="codeinput"><span class="keyword">for</span> holdV=hold_vec
+    idxHold = find(hold_vec==holdV);
+
+    <span class="comment">% Go back to base configuration</span>
+    Taux = T;
+    Ntaux = Nt;
+    SNRaux = SNR;
+    Nraux = Nr;
+    Laux = L;
+    Ltrueaux = L;
+    Maux = M;
+    lHeadaux = lHead;
+    onOffModelaux = onOffModel;
+
+    <span class="keyword">if</span>(strcmp(hold_var,<span class="string">'Nt'</span>))
+        Ntaux = holdV;
+    <span class="keyword">end</span>
+
+    <span class="comment">% Load the results of interest</span>
+    avgADER = zeros(1,length(sweep_vec));
+    avgSER_ACT = zeros(1,length(sweep_vec));
+    avgSER_ALL = zeros(1,length(sweep_vec));
+    avgMSE = zeros(1,length(sweep_vec));
+    avgMEST = zeros(1,length(sweep_vec));
+    boxMEST = zeros(maxItCluster-length(idxItClusterNotFound),length(sweep_vec));
+
+    avgADER_FFBS = zeros(1,length(sweep_vec));
+    avgSER_ACT_FFBS = zeros(1,length(sweep_vec));
+    avgSER_ALL_FFBS = zeros(1,length(sweep_vec));
+    avgMSE_FFBS = zeros(1,length(sweep_vec));
+    avgMEST_FFBS = zeros(1,length(sweep_vec));
+    boxMEST_FFBS = zeros(maxItCluster-length(idxItClusterNotFound),length(sweep_vec));
+
+    <span class="keyword">for</span> sweepV=sweep_vec
+        idxSweep = find(sweep_vec==sweepV);
+
+        <span class="keyword">if</span>(strcmp(sweep_var,<span class="string">'Nt'</span>))
+            Ntaux = sweepV;
+        <span class="keyword">end</span>
+
+        idxGood = find(ALL_MEST(:,end,idxSweep,idxHold)==Ntaux);
+        idxBad = find(ALL_MEST(:,end,idxSweep,idxHold)~=Ntaux);
+
+        idxGood_FFBS = find(ALL_MEST_FFBS(:,end,idxSweep,idxHold)==Ntaux);
+        idxBad_FFBS = find(ALL_MEST_FFBS(:,end,idxSweep,idxHold)~=Ntaux);
+
+        avgADER(idxSweep) = mean(ALL_ADER(idxGood,end,idxSweep,idxHold));
+        avgSER_ACT(idxSweep) = mean(ALL_SER_ACT(idxGood,end,idxSweep,idxHold));
+        avgSER_ALL(idxSweep) = mean(ALL_SER_ALL(idxGood,end,idxSweep,idxHold));
+        avgMEST(idxSweep) = mean(ALL_MEST(idxGood,end,idxSweep,idxHold));
+        avgMSE(idxSweep) = mean(ALL_MMSE(idxGood,end,idxSweep,idxHold));
+        boxMEST(:,idxSweep) = ALL_MEST(:,end,idxSweep,idxHold);
+
+        avgADER_FFBS(idxSweep) = mean(ALL_ADER_FFBS(idxGood_FFBS,end,idxSweep,idxHold));
+        avgSER_ACT_FFBS(idxSweep) = mean(ALL_SER_ACT_FFBS(idxGood_FFBS,end,idxSweep,idxHold));
+        avgSER_ALL_FFBS(idxSweep) = mean(ALL_SER_ALL_FFBS(idxGood_FFBS,end,idxSweep,idxHold));
+        avgMEST_FFBS(idxSweep) = mean(ALL_MEST_FFBS(idxGood_FFBS,end,idxSweep,idxHold));
+        avgMSE_FFBS(idxSweep) = mean(ALL_MMSE_FFBS(idxGood_FFBS,end,idxSweep,idxHold));
+        boxMEST_FFBS(:,idxSweep) = ALL_MEST_FFBS(:,end,idxSweep,idxHold);
+    <span class="keyword">end</span>
+
+    <span class="comment">% Plot ADER</span>
+    figure;
+    h = plot(sweep_vec,avgADER,<span class="string">'Marker'</span>,marcadores{1},<span class="string">'LineStyle'</span>,estilos{1},<span class="string">'Color'</span>,colores{1});
+    ylabel(<span class="string">'ADER'</span>);
+    xlabel(etiquetaX);
+    set(gca,<span class="string">'XLim'</span>,[min(sweep_vec) max(sweep_vec)]);
+    set(gca,<span class="string">'XTick'</span>,sweep_vec);
+    set(gca,<span class="string">'XTickLabel'</span>,sweep_vec);
+    grid <span class="string">on</span>;
+    hold <span class="string">on</span>;
+    h = plot(sweep_vec,avgADER_FFBS,<span class="string">'Marker'</span>,marcadores{2},<span class="string">'LineStyle'</span>,estilos{2},<span class="string">'Color'</span>,colores{2});
+    legend(leyenda(1:2),<span class="string">'Location'</span>,lugar);
+    <span class="keyword">if</span>(plotToFile)
+        figurapdf(anchoSm,altoSm);
+        print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/ADER_'</span> sweep_var <span class="string">'_s.pdf'</span>]);
+        figurapdf(anchoLar,altoLar);
+        print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/ADER_'</span> sweep_var <span class="string">'_g.pdf'</span>]);
+    <span class="keyword">end</span>
+
+    <span class="comment">% Plot SER_ALL</span>
+    figure;
+    h = plot(sweep_vec,avgSER_ALL,<span class="string">'Marker'</span>,marcadores{1},<span class="string">'LineStyle'</span>,estilos{1},<span class="string">'Color'</span>,colores{1});
+    ylabel(<span class="string">'SER'</span>);
+    xlabel(etiquetaX);
+    set(gca,<span class="string">'XLim'</span>,[min(sweep_vec) max(sweep_vec)]);
+    set(gca,<span class="string">'XTick'</span>,sweep_vec);
+    set(gca,<span class="string">'XTickLabel'</span>,sweep_vec);
+    hold <span class="string">on</span>;
+    grid <span class="string">on</span>;
+    h = plot(sweep_vec,avgSER_ALL_FFBS,<span class="string">'Marker'</span>,marcadores{2},<span class="string">'LineStyle'</span>,estilos{2},<span class="string">'Color'</span>,colores{2});
+    legend(leyenda(1:2),<span class="string">'Location'</span>,lugar);
+    <span class="keyword">if</span>(plotToFile)
+        figurapdf(anchoSm,altoSm);
+        print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/SER_'</span> sweep_var <span class="string">'_s.pdf'</span>]);
+        figurapdf(anchoLar,altoLar);
+        print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/SER_'</span> sweep_var <span class="string">'_g.pdf'</span>]);
+    <span class="keyword">end</span>
+
+    <span class="comment">% Plot MSE</span>
+    figure;
+    h = plot(sweep_vec,avgMSE,<span class="string">'Marker'</span>,marcadores{1},<span class="string">'LineStyle'</span>,estilos{1},<span class="string">'Color'</span>,colores{1});
+    ylabel(<span class="string">'MSE'</span>);
+    xlabel(etiquetaX);
+    set(gca,<span class="string">'XLim'</span>,[min(sweep_vec) max(sweep_vec)]);
+    set(gca,<span class="string">'XTick'</span>,sweep_vec);
+    set(gca,<span class="string">'XTickLabel'</span>,sweep_vec);
+    hold <span class="string">on</span>;
+    grid <span class="string">on</span>;
+    h = plot(sweep_vec,avgMSE_FFBS,<span class="string">'Marker'</span>,marcadores{2},<span class="string">'LineStyle'</span>,estilos{2},<span class="string">'Color'</span>,colores{2});
+    legend(leyenda(1:2),<span class="string">'Location'</span>,lugar);
+    <span class="keyword">if</span>(plotToFile)
+        figurapdf(anchoSm,altoSm);
+        print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/MSE_'</span> sweep_var <span class="string">'_s.pdf'</span>]);
+        figurapdf(anchoLar,altoLar);
+        print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/MSE_'</span> sweep_var <span class="string">'_g.pdf'</span>]);
+    <span class="keyword">end</span>
+
+    <span class="comment">% Plot DEP</span>
+    figure;
+    aux_vec = Ntaux*ones(size(sweep_vec));
+    <span class="keyword">if</span>(strcmp(sweep_var,<span class="string">'Nt'</span>))
+        aux_vec = sweep_vec;
+    <span class="keyword">end</span>
+    h = plot(sweep_vec,1-sum(boxMEST==repmat(aux_vec,size(boxMEST,1),1),1)/size(boxMEST,1),<span class="string">'Marker'</span>,marcadores{1},<span class="string">'LineStyle'</span>,estilos{1},<span class="string">'Color'</span>,colores{1});
+    ylabel(<span class="string">'DEP'</span>);
+    xlabel(etiquetaX);
+    set(gca,<span class="string">'XLim'</span>,[min(sweep_vec) max(sweep_vec)]);
+    set(gca,<span class="string">'XTick'</span>,sweep_vec);
+    set(gca,<span class="string">'XTickLabel'</span>,sweep_vec);
+    hold <span class="string">on</span>;
+    grid <span class="string">on</span>;
+    h = plot(sweep_vec,1-sum(boxMEST_FFBS==repmat(aux_vec,size(boxMEST_FFBS,1),1),1)/size(boxMEST_FFBS,1),<span class="string">'Marker'</span>,marcadores{2},<span class="string">'LineStyle'</span>,estilos{2},<span class="string">'Color'</span>,colores{2});
+    legend(leyenda(1:2),<span class="string">'Location'</span>,lugar);
+    <span class="keyword">if</span>(plotToFile)
+        figurapdf(anchoSm,altoSm);
+        print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/DEP_'</span> sweep_var <span class="string">'_s.pdf'</span>]);
+        figurapdf(anchoLar,altoLar);
+        print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/DEP_'</span> sweep_var <span class="string">'_g.pdf'</span>]);
+    <span class="keyword">end</span>
+
+    <span class="comment">% Plot Boxplot</span>
+    figure;
+    boxplot(boxMEST,<span class="string">'whisker'</span>,inf);
+    hold <span class="string">on</span>;
+    plot(1:length(sweep_vec),mean(boxMEST,1),<span class="string">'o'</span>,<span class="string">'Color'</span>,[1 0.4 1],<span class="string">'MarkerFaceColor'</span>,[1 0.4 1])
+    ylabel(<span class="string">'M_+'</span>);
+    xlabel(etiquetaX);
+    set(gca,<span class="string">'Xtick'</span>,1:length(sweep_vec));
+    set(gca,<span class="string">'XTickLabel'</span>,sweep_vec);
+    hold <span class="string">on</span>;
+    title(leyenda(1));
+    <span class="keyword">if</span>(strcmp(sweep_var,<span class="string">'Nt'</span>))
+        plot(1:length(sweep_vec),sweep_vec,<span class="string">'p'</span>,<span class="string">'Color'</span>,[0 0.5 0],<span class="string">'MarkerFaceColor'</span>,[0 0.5 0],<span class="string">'MarkerSize'</span>,8);
+    <span class="keyword">else</span>
+        plot(1:length(sweep_vec),Ntaux*ones(size(sweep_vec)),<span class="string">'p'</span>,<span class="string">'Color'</span>,[0 0.5 0],<span class="string">'MarkerFaceColor'</span>,[0 0.5 0],<span class="string">'MarkerSize'</span>,8);
+    <span class="keyword">end</span>
+    grid <span class="string">on</span>;
+    <span class="keyword">if</span>(plotToFile)
+        figurapdf(anchoSm,altoSm);
+        print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/BoxM_'</span> sweep_var <span class="string">'_s.pdf'</span>]);
+        figurapdf(anchoLar,altoLar);
+        print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/BoxM_'</span> sweep_var <span class="string">'_g.pdf'</span>]);
+    <span class="keyword">end</span>
+
+    <span class="comment">% Plot Boxplot (FFBS)</span>
+    figure;
+    boxplot(boxMEST_FFBS,<span class="string">'whisker'</span>,inf);
+    hold <span class="string">on</span>;
+    plot(1:length(sweep_vec),mean(boxMEST_FFBS,1),<span class="string">'o'</span>,<span class="string">'Color'</span>,[1 0.4 1],<span class="string">'MarkerFaceColor'</span>,[1 0.4 1])
+    ylabel(<span class="string">'M_+'</span>);
+    xlabel(etiquetaX);
+    set(gca,<span class="string">'Xtick'</span>,1:length(sweep_vec));
+    set(gca,<span class="string">'XTickLabel'</span>,sweep_vec);
+    hold <span class="string">on</span>;
+    title(leyenda(2));
+    <span class="keyword">if</span>(strcmp(sweep_var,<span class="string">'Nt'</span>))
+        plot(1:length(sweep_vec),sweep_vec,<span class="string">'p'</span>,<span class="string">'Color'</span>,[0 0.5 0],<span class="string">'MarkerFaceColor'</span>,[0 0.5 0],<span class="string">'MarkerSize'</span>,8);
+    <span class="keyword">else</span>
+        plot(1:length(sweep_vec),Ntaux*ones(size(sweep_vec)),<span class="string">'p'</span>,<span class="string">'Color'</span>,[0 0.5 0],<span class="string">'MarkerFaceColor'</span>,[0 0.5 0],<span class="string">'MarkerSize'</span>,8);
+    <span class="keyword">end</span>
+    grid <span class="string">on</span>;
+    <span class="keyword">if</span>(plotToFile)
+        figurapdf(anchoSm,altoSm);
+        print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/BoxM_'</span> sweep_var <span class="string">'_s.pdf'</span>]);
+        figurapdf(anchoLar,altoLar);
+        print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/BoxM_'</span> sweep_var <span class="string">'_g.pdf'</span>]);
+    <span class="keyword">end</span>
+
+<span class="keyword">end</span>
+
+
+<span class="comment">% Plot all boxplots</span>
+figure;
+boxAUX = cat(1,permute(boxMEST_FFBS,[3 1 2]),permute(boxMEST,[3 1 2]));
+aboxplot(boxAUX,<span class="string">'labels'</span>,sweep_vec);
+legend(<span class="string">'FFBS'</span>,<span class="string">'PGAS'</span>);
+xlabel(etiquetaX);
+ylabel(<span class="string">'M_+'</span>);
+hold <span class="string">on</span>;
+set(gca,<span class="string">'yLim'</span>,[min(boxAUX(:))-0.5,max(boxAUX(:))+0.5]);
+set(gca,<span class="string">'YGrid'</span>,<span class="string">'on'</span>);
+deltaXaxis = 0.175;
+<span class="keyword">if</span>(strcmp(sweep_var,<span class="string">'Nt'</span>))
+    plot([1-],sweep_vec,<span class="string">'p'</span>,<span class="string">'Color'</span>,[0 0.5 0],<span class="string">'MarkerFaceColor'</span>,[0 0.5 0],<span class="string">'MarkerSize'</span>,8);
+<span class="keyword">else</span>
+    plot([],sweep_vec,<span class="string">'p'</span>,<span class="string">'Color'</span>,[0 0.5 0],<span class="string">'MarkerFaceColor'</span>,[0 0.5 0],<span class="string">'MarkerSize'</span>,8);
+<span class="keyword">end</span>
+
+
+
+
+<span class="keyword">return</span>;
+<span class="comment">% Plot all boxplots</span>
+figure;
+boxAUX = [];
+positionVec = [];
+centersVec = [];
+starsVec = [];
+<span class="keyword">for</span> i=1:length(sweep_vec)
+    boxAUX = [boxAUX boxMEST_FFBS(:,i) boxMEST(:,i)];
+    positionVec = [positionVec i i+1/3];
+    centersVec = [centersVec i+1/6];
+    starsVec = [starsVec sweep_vec(i) sweep_vec(i)];
+<span class="keyword">end</span>
+boxplot(boxAUX,<span class="string">'whisker'</span>,inf,<span class="string">'positions'</span>,positionVec);
+hold <span class="string">on</span>;
+plot(positionVec,mean(boxAUX,1),<span class="string">'o'</span>,<span class="string">'Color'</span>,[1 0.4 1],<span class="string">'MarkerFaceColor'</span>,[1 0.4 1])
+ylabel(<span class="string">'M_+'</span>);
+xlabel(etiquetaX);
+set(gca,<span class="string">'Xtick'</span>,sort([positionVec centersVec],<span class="string">'ascend'</span>));
+<span class="comment">%set(gca,'XTickLabel',);</span>
+hold <span class="string">on</span>;
+title(leyenda(2));
+<span class="keyword">if</span>(strcmp(sweep_var,<span class="string">'Nt'</span>))
+    plot(positionVec,starsVec,<span class="string">'p'</span>,<span class="string">'Color'</span>,[0 0.5 0],<span class="string">'MarkerFaceColor'</span>,[0 0.5 0],<span class="string">'MarkerSize'</span>,8);
+<span class="keyword">else</span>
+    plot(positionVec,Ntaux*ones(1,length(positionVec)),<span class="string">'p'</span>,<span class="string">'Color'</span>,[0 0.5 0],<span class="string">'MarkerFaceColor'</span>,[0 0.5 0],<span class="string">'MarkerSize'</span>,8);
+<span class="keyword">end</span>
+grid <span class="string">on</span>;
+<span class="keyword">if</span>(plotToFile)
+    figurapdf(anchoSm,altoSm);
+    print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/BoxM_'</span> sweep_var <span class="string">'_s.pdf'</span>]);
+    figurapdf(anchoLar,altoLar);
+    print(<span class="string">'-dpdf'</span>,[<span class="string">'./plots/syn9/BoxM_'</span> sweep_var <span class="string">'_g.pdf'</span>]);
+<span class="keyword">end</span>
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.9<br></p></div><!--
+##### SOURCE BEGIN #####
+clear all;
+close all;
+clc
+addpath aboxplot;
+
+maxItCluster = 50;
+Niter =  10000;
+
+%% Scenario definition
+
+%%%%%%%%%%%%%%%
+plotToFile = 0;
+%%%%%%%%%%%%%%%
+
+%Base scenario
+T = 500;
+Nt = 5;
+SNR = 0;
+Nr = 10;
+L = 1;
+Ltrue = 1;
+M = 2;
+lHead = 0;
+onOffModel = 0;
+
+% Sweep and hold variables:
+sweep_var = 'L'; sweep_vec = 1:2; simId = 9; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=0;
+
+marcadores = {'+','^','o'};
+estilos = {'-','REPLACE_WITH_DASH_DASH',':'};
+colores = {'m','b','k'};
+leyenda = {'PGAS','FFBS'};
+anchoSm = 3; altoSm = 2;
+anchoLar = 5; altoLar = 3.5;
+
+%% Initialize metrics of interest
+ALL_ADER = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_MMSE = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_LLH = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_SER_ALL = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_SER_ACT = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_MEST = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+
+ALL_ADER_FFBS = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_SER_ALL_FFBS = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_SER_ACT_FFBS = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_MMSE_FFBS = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_LLH_FFBS = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_MEST_FFBS = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+
+%% Load results
+idxItClusterNotFound = [];
+for sweepV=sweep_vec
+    idxSweep = find(sweep_vec==sweepV);
+    
+    % Go back to base configuration
+    Taux = T;
+    Ntaux = Nt;
+    SNRaux = SNR;
+    Nraux = Nr;
+    Laux = L;
+    Ltrueaux = L;
+    Maux = M;
+    lHeadaux = lHead;
+    onOffModelaux = onOffModel;
+    
+    % Modify the sweep variable
+    if(strcmp(sweep_var,'T'))
+        Taux = sweepV;
+    elseif(strcmp(sweep_var,'Nt'))
+        Ntaux = sweepV;
+    elseif(strcmp(sweep_var,'SNR'))
+        SNRaux = sweepV;
+    elseif(strcmp(sweep_var,'Nr'))
+        Nraux = sweepV;
+    elseif(strcmp(sweep_var,'L'))
+        Laux = sweepV;
+        Ltrueaux = sweepV;
+    elseif(strcmp(sweep_var,'Ltrue'))
+        Ltrueaux = sweepV;
+    elseif(strcmp(sweep_var,'M'))
+        Maux = sweepV;
+    elseif(strcmp(sweep_var,'lHead'))
+        lHeadaux = sweepV;
+    elseif(strcmp(sweep_var,'onOffModel'))
+        onOffModelaux = sweepV;
+    else
+        error('Not valid value for sweep_var')
+    end
+    
+    for holdV=hold_vec
+        idxHold = find(hold_vec==holdV);
+        
+        % Modify the hold variable
+        if(strcmp(hold_var,'T'))
+            Taux = holdV;
+        elseif(strcmp(hold_var,'Nt'))
+            Ntaux = holdV;
+        elseif(strcmp(hold_var,'SNR'))
+            SNRaux = holdV;
+        elseif(strcmp(hold_var,'Nr'))
+            Nraux = holdV;
+        elseif(strcmp(hold_var,'L'))
+            Laux = holdV;
+        elseif(strcmp(hold_var,'Ltrue'))
+            Ltrueaux = holdV;
+        elseif(strcmp(hold_var,'M'))
+            Maux = holdV;
+        elseif(strcmp(hold_var,'lHead'))
+            lHeadaux = holdV;
+        elseif(strcmp(hold_var,'onOffModel'))
+            onOffModelaux = holdV;
+        else
+            error('Not valid value for hold_var')
+        end
+        
+        % Load all itCluster's for the given configuration
+        for itCluster=1:maxItCluster
+            
+            
+            saveFile = ['/export/clusterdata/franrruiz87/ModeloMIMO/results/synthetic/' num2str(simId)...
+                        '/T' num2str(Taux) '_Nt' num2str(Ntaux) '_Nr' num2str(Nraux) '_M' num2str(Maux) '_Ltrue' num2str(Ltrueaux) '_L' num2str(Laux) '_SNR' num2str(SNRaux) '_lHead' num2str(lHeadaux), '_onOff' num2str(onOffModelaux) ...
+                        '/itCluster' num2str(itCluster) '.mat'];
+                    
+            if(exist(saveFile,'file'))
+                load(saveFile,'ADER','MMSE','SER_ACT','SER_ALL','LLH','M_EST');
+                ALL_ADER(itCluster,:,idxSweep,idxHold) = ADER;
+                ALL_MMSE(itCluster,:,idxSweep,idxHold) = MMSE;
+                ALL_LLH(itCluster,:,idxSweep,idxHold) = LLH;
+                ALL_SER_ALL(itCluster,:,idxSweep,idxHold) = SER_ALL;
+                ALL_SER_ACT(itCluster,:,idxSweep,idxHold) = SER_ACT;
+                ALL_MEST(itCluster,:,idxSweep,idxHold) = M_EST;
+                
+                if(exist([saveFile(1:end-4) 'FFBS.mat'],'file'))
+                    load([saveFile(1:end-4) 'FFBS.mat'],'ADER','MMSE','SER_ACT','SER_ALL','LLH','M_EST');
+                    ALL_ADER_FFBS(itCluster,:,idxSweep,idxHold) = ADER;
+                    ALL_SER_ALL_FFBS(itCluster,:,idxSweep,idxHold) = SER_ALL;
+                    ALL_SER_ACT_FFBS(itCluster,:,idxSweep,idxHold) = SER_ACT;
+                    ALL_MMSE_FFBS(itCluster,:,idxSweep,idxHold) = MMSE;
+                    ALL_LLH_FFBS(itCluster,:,idxSweep,idxHold) = LLH;
+                    ALL_MEST_FFBS(itCluster,:,idxSweep,idxHold) = M_EST;
+                else
+                    idxItClusterNotFound = unique([idxItClusterNotFound itCluster]);
+                    disp(['File ' saveFile(1:end-4) 'FFBS.mat' ' not found']);
+                end
+            else
+                idxItClusterNotFound = unique([idxItClusterNotFound itCluster]);
+                disp(['File ' saveFile ' not found']);
+            end
+        end
+        
+    end
+end
+
+%% Remove not found itCluster's
+if(~isempty(idxItClusterNotFound))
+    disp(['WARNING: Removing ' num2str(length(idxItClusterNotFound)) ' simulations. Total is now: ' num2str(maxItCluster-length(idxItClusterNotFound))]);
+end
+ALL_ADER(idxItClusterNotFound,:,:,:) = [];
+ALL_MMSE(idxItClusterNotFound,:,:,:) = [];
+ALL_LLH(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ALL(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ACT(idxItClusterNotFound,:,:,:) = [];
+ALL_MEST(idxItClusterNotFound,:,:,:) = [];
+
+ALL_ADER_FFBS(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ALL_FFBS(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ACT_FFBS(idxItClusterNotFound,:,:,:) = [];
+ALL_MMSE_FFBS(idxItClusterNotFound,:,:,:) = [];
+ALL_LLH_FFBS(idxItClusterNotFound,:,:,:) = [];
+ALL_MEST_FFBS(idxItClusterNotFound,:,:,:) = [];
+
+%% For fixed values of the hold variable, plot the metrics vs the sweep variable
+for holdV=hold_vec
+    idxHold = find(hold_vec==holdV);
+    
+    % Go back to base configuration
+    Taux = T;
+    Ntaux = Nt;
+    SNRaux = SNR;
+    Nraux = Nr;
+    Laux = L;
+    Ltrueaux = L;
+    Maux = M;
+    lHeadaux = lHead;
+    onOffModelaux = onOffModel;
+    
+    if(strcmp(hold_var,'Nt'))
+        Ntaux = holdV;
+    end
+    
+    % Load the results of interest
+    avgADER = zeros(1,length(sweep_vec));
+    avgSER_ACT = zeros(1,length(sweep_vec));
+    avgSER_ALL = zeros(1,length(sweep_vec));
+    avgMSE = zeros(1,length(sweep_vec));
+    avgMEST = zeros(1,length(sweep_vec));
+    boxMEST = zeros(maxItCluster-length(idxItClusterNotFound),length(sweep_vec));
+    
+    avgADER_FFBS = zeros(1,length(sweep_vec));
+    avgSER_ACT_FFBS = zeros(1,length(sweep_vec));
+    avgSER_ALL_FFBS = zeros(1,length(sweep_vec));
+    avgMSE_FFBS = zeros(1,length(sweep_vec));
+    avgMEST_FFBS = zeros(1,length(sweep_vec));
+    boxMEST_FFBS = zeros(maxItCluster-length(idxItClusterNotFound),length(sweep_vec));
+    
+    for sweepV=sweep_vec
+        idxSweep = find(sweep_vec==sweepV);
+        
+        if(strcmp(sweep_var,'Nt'))
+            Ntaux = sweepV;
+        end
+    
+        idxGood = find(ALL_MEST(:,end,idxSweep,idxHold)==Ntaux);
+        idxBad = find(ALL_MEST(:,end,idxSweep,idxHold)~=Ntaux);
+
+        idxGood_FFBS = find(ALL_MEST_FFBS(:,end,idxSweep,idxHold)==Ntaux);
+        idxBad_FFBS = find(ALL_MEST_FFBS(:,end,idxSweep,idxHold)~=Ntaux);
+        
+        avgADER(idxSweep) = mean(ALL_ADER(idxGood,end,idxSweep,idxHold));
+        avgSER_ACT(idxSweep) = mean(ALL_SER_ACT(idxGood,end,idxSweep,idxHold));
+        avgSER_ALL(idxSweep) = mean(ALL_SER_ALL(idxGood,end,idxSweep,idxHold));
+        avgMEST(idxSweep) = mean(ALL_MEST(idxGood,end,idxSweep,idxHold));
+        avgMSE(idxSweep) = mean(ALL_MMSE(idxGood,end,idxSweep,idxHold));
+        boxMEST(:,idxSweep) = ALL_MEST(:,end,idxSweep,idxHold);
+        
+        avgADER_FFBS(idxSweep) = mean(ALL_ADER_FFBS(idxGood_FFBS,end,idxSweep,idxHold));
+        avgSER_ACT_FFBS(idxSweep) = mean(ALL_SER_ACT_FFBS(idxGood_FFBS,end,idxSweep,idxHold));
+        avgSER_ALL_FFBS(idxSweep) = mean(ALL_SER_ALL_FFBS(idxGood_FFBS,end,idxSweep,idxHold));
+        avgMEST_FFBS(idxSweep) = mean(ALL_MEST_FFBS(idxGood_FFBS,end,idxSweep,idxHold));
+        avgMSE_FFBS(idxSweep) = mean(ALL_MMSE_FFBS(idxGood_FFBS,end,idxSweep,idxHold));
+        boxMEST_FFBS(:,idxSweep) = ALL_MEST_FFBS(:,end,idxSweep,idxHold);
+    end
+    
+    % Plot ADER
+    figure;
+    h = plot(sweep_vec,avgADER,'Marker',marcadores{1},'LineStyle',estilos{1},'Color',colores{1});
+    ylabel('ADER');
+    xlabel(etiquetaX);
+    set(gca,'XLim',[min(sweep_vec) max(sweep_vec)]);
+    set(gca,'XTick',sweep_vec);
+    set(gca,'XTickLabel',sweep_vec);
+    grid on;
+    hold on;
+    h = plot(sweep_vec,avgADER_FFBS,'Marker',marcadores{2},'LineStyle',estilos{2},'Color',colores{2});
+    legend(leyenda(1:2),'Location',lugar);
+    if(plotToFile)
+        figurapdf(anchoSm,altoSm);
+        print('-dpdf',['./plots/syn9/ADER_' sweep_var '_s.pdf']);
+        figurapdf(anchoLar,altoLar);
+        print('-dpdf',['./plots/syn9/ADER_' sweep_var '_g.pdf']);
+    end
+    
+    % Plot SER_ALL
+    figure;
+    h = plot(sweep_vec,avgSER_ALL,'Marker',marcadores{1},'LineStyle',estilos{1},'Color',colores{1});
+    ylabel('SER');
+    xlabel(etiquetaX);
+    set(gca,'XLim',[min(sweep_vec) max(sweep_vec)]);
+    set(gca,'XTick',sweep_vec);
+    set(gca,'XTickLabel',sweep_vec);
+    hold on;
+    grid on;
+    h = plot(sweep_vec,avgSER_ALL_FFBS,'Marker',marcadores{2},'LineStyle',estilos{2},'Color',colores{2});
+    legend(leyenda(1:2),'Location',lugar);
+    if(plotToFile)
+        figurapdf(anchoSm,altoSm);
+        print('-dpdf',['./plots/syn9/SER_' sweep_var '_s.pdf']);
+        figurapdf(anchoLar,altoLar);
+        print('-dpdf',['./plots/syn9/SER_' sweep_var '_g.pdf']);
+    end
+    
+    % Plot MSE
+    figure;
+    h = plot(sweep_vec,avgMSE,'Marker',marcadores{1},'LineStyle',estilos{1},'Color',colores{1});
+    ylabel('MSE');
+    xlabel(etiquetaX);
+    set(gca,'XLim',[min(sweep_vec) max(sweep_vec)]);
+    set(gca,'XTick',sweep_vec);
+    set(gca,'XTickLabel',sweep_vec);
+    hold on;
+    grid on;
+    h = plot(sweep_vec,avgMSE_FFBS,'Marker',marcadores{2},'LineStyle',estilos{2},'Color',colores{2});
+    legend(leyenda(1:2),'Location',lugar);
+    if(plotToFile)
+        figurapdf(anchoSm,altoSm);
+        print('-dpdf',['./plots/syn9/MSE_' sweep_var '_s.pdf']);
+        figurapdf(anchoLar,altoLar);
+        print('-dpdf',['./plots/syn9/MSE_' sweep_var '_g.pdf']);
+    end
+    
+    % Plot DEP
+    figure;
+    aux_vec = Ntaux*ones(size(sweep_vec));
+    if(strcmp(sweep_var,'Nt'))
+        aux_vec = sweep_vec;
+    end
+    h = plot(sweep_vec,1-sum(boxMEST==repmat(aux_vec,size(boxMEST,1),1),1)/size(boxMEST,1),'Marker',marcadores{1},'LineStyle',estilos{1},'Color',colores{1});
+    ylabel('DEP');
+    xlabel(etiquetaX);
+    set(gca,'XLim',[min(sweep_vec) max(sweep_vec)]);
+    set(gca,'XTick',sweep_vec);
+    set(gca,'XTickLabel',sweep_vec);
+    hold on;
+    grid on;
+    h = plot(sweep_vec,1-sum(boxMEST_FFBS==repmat(aux_vec,size(boxMEST_FFBS,1),1),1)/size(boxMEST_FFBS,1),'Marker',marcadores{2},'LineStyle',estilos{2},'Color',colores{2});
+    legend(leyenda(1:2),'Location',lugar);
+    if(plotToFile)
+        figurapdf(anchoSm,altoSm);
+        print('-dpdf',['./plots/syn9/DEP_' sweep_var '_s.pdf']);
+        figurapdf(anchoLar,altoLar);
+        print('-dpdf',['./plots/syn9/DEP_' sweep_var '_g.pdf']);
+    end
+    
+    % Plot Boxplot
+    figure;
+    boxplot(boxMEST,'whisker',inf);
+    hold on;
+    plot(1:length(sweep_vec),mean(boxMEST,1),'o','Color',[1 0.4 1],'MarkerFaceColor',[1 0.4 1])
+    ylabel('M_+');
+    xlabel(etiquetaX);
+    set(gca,'Xtick',1:length(sweep_vec));
+    set(gca,'XTickLabel',sweep_vec);
+    hold on;
+    title(leyenda(1));
+    if(strcmp(sweep_var,'Nt'))
+        plot(1:length(sweep_vec),sweep_vec,'p','Color',[0 0.5 0],'MarkerFaceColor',[0 0.5 0],'MarkerSize',8);
+    else
+        plot(1:length(sweep_vec),Ntaux*ones(size(sweep_vec)),'p','Color',[0 0.5 0],'MarkerFaceColor',[0 0.5 0],'MarkerSize',8);
+    end
+    grid on;
+    if(plotToFile)
+        figurapdf(anchoSm,altoSm);
+        print('-dpdf',['./plots/syn9/BoxM_' sweep_var '_s.pdf']);
+        figurapdf(anchoLar,altoLar);
+        print('-dpdf',['./plots/syn9/BoxM_' sweep_var '_g.pdf']);
+    end
+    
+    % Plot Boxplot (FFBS)
+    figure;
+    boxplot(boxMEST_FFBS,'whisker',inf);
+    hold on;
+    plot(1:length(sweep_vec),mean(boxMEST_FFBS,1),'o','Color',[1 0.4 1],'MarkerFaceColor',[1 0.4 1])
+    ylabel('M_+');
+    xlabel(etiquetaX);
+    set(gca,'Xtick',1:length(sweep_vec));
+    set(gca,'XTickLabel',sweep_vec);
+    hold on;
+    title(leyenda(2));
+    if(strcmp(sweep_var,'Nt'))
+        plot(1:length(sweep_vec),sweep_vec,'p','Color',[0 0.5 0],'MarkerFaceColor',[0 0.5 0],'MarkerSize',8);
+    else
+        plot(1:length(sweep_vec),Ntaux*ones(size(sweep_vec)),'p','Color',[0 0.5 0],'MarkerFaceColor',[0 0.5 0],'MarkerSize',8);
+    end
+    grid on;
+    if(plotToFile)
+        figurapdf(anchoSm,altoSm);
+        print('-dpdf',['./plots/syn9/BoxM_' sweep_var '_s.pdf']);
+        figurapdf(anchoLar,altoLar);
+        print('-dpdf',['./plots/syn9/BoxM_' sweep_var '_g.pdf']);
+    end    
+    
+end
+
+
+% Plot all boxplots
+figure;
+boxAUX = cat(1,permute(boxMEST_FFBS,[3 1 2]),permute(boxMEST,[3 1 2]));
+aboxplot(boxAUX,'labels',sweep_vec);
+legend('FFBS','PGAS');
+xlabel(etiquetaX);
+ylabel('M_+');
+hold on;
+set(gca,'yLim',[min(boxAUX(:))-0.5,max(boxAUX(:))+0.5]);
+set(gca,'YGrid','on');
+deltaXaxis = 0.175;
+if(strcmp(sweep_var,'Nt'))
+    plot([1-],sweep_vec,'p','Color',[0 0.5 0],'MarkerFaceColor',[0 0.5 0],'MarkerSize',8);
+else
+    plot([],sweep_vec,'p','Color',[0 0.5 0],'MarkerFaceColor',[0 0.5 0],'MarkerSize',8);
+end
+
+
+
+
+return;
+% Plot all boxplots
+figure;
+boxAUX = [];
+positionVec = [];
+centersVec = [];
+starsVec = [];
+for i=1:length(sweep_vec)
+    boxAUX = [boxAUX boxMEST_FFBS(:,i) boxMEST(:,i)];
+    positionVec = [positionVec i i+1/3];
+    centersVec = [centersVec i+1/6];
+    starsVec = [starsVec sweep_vec(i) sweep_vec(i)];
+end
+boxplot(boxAUX,'whisker',inf,'positions',positionVec);
+hold on;
+plot(positionVec,mean(boxAUX,1),'o','Color',[1 0.4 1],'MarkerFaceColor',[1 0.4 1])
+ylabel('M_+');
+xlabel(etiquetaX);
+set(gca,'Xtick',sort([positionVec centersVec],'ascend'));
+%set(gca,'XTickLabel',);
+hold on;
+title(leyenda(2));
+if(strcmp(sweep_var,'Nt'))
+    plot(positionVec,starsVec,'p','Color',[0 0.5 0],'MarkerFaceColor',[0 0.5 0],'MarkerSize',8);
+else
+    plot(positionVec,Ntaux*ones(1,length(positionVec)),'p','Color',[0 0.5 0],'MarkerFaceColor',[0 0.5 0],'MarkerSize',8);
+end
+grid on;
+if(plotToFile)
+    figurapdf(anchoSm,altoSm);
+    print('-dpdf',['./plots/syn9/BoxM_' sweep_var '_s.pdf']);
+    figurapdf(anchoLar,altoLar);
+    print('-dpdf',['./plots/syn9/BoxM_' sweep_var '_g.pdf']);
+end    
+
+
+
+
+##### SOURCE END #####
+--></body></html>
