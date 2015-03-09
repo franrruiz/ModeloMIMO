@@ -1,0 +1,65 @@
+\begin{thebibliography}{10}
+
+\bibitem{Dhillon2013}
+H.~S. Dhillon, H.~C. Huang, H.~Viswanathan, and Valenzuela~R. A.,
+\newblock ``Fundamentals of throughput maximization with random arrivals for
+  {M2M} communications,''
+\newblock {\em CoRR}, vol. abs/1307.0585, 2013.
+
+\bibitem{Chen2010}
+Y.~Chen and W.~Wang,
+\newblock ``Machine-to-machine communication in {LTE-A},''
+\newblock in {\em Vehicular Technology Conference Fall (VTC 2010-Fall), 2010
+  IEEE 72nd}, Sept 2010, pp. 1--4.
+
+\bibitem{Hoydis13}
+J.~Hoydis, S.~ten Brink, and M.~Debbah,
+\newblock ``Massive {MIMO} in the {UL/DL} of cellular networks: How many
+  antennas do we need?,''
+\newblock {\em IEEE Journal on Selected Areas in Communications}, vol. 31, no.
+  2, pp. 160 -- 171, Feb. 2013.
+
+\bibitem{Vazquez2013}
+M.~A. V\'{a}zquez and J.~M\'{i}guez,
+\newblock ``User activity tracking in {DS-CDMA} systems,''
+\newblock {\em Vehicular Technology, IEEE Transactions on}, vol. 62, no. 7, pp.
+  3188--3203, Sept 2013.
+
+\bibitem{AD10}
+D.~Angelosante, E.~Grossi, G.~B. Giannakis, and M.~Lops,
+\newblock ``Sparsity-aware estimation of {CDMA} system parameters,''
+\newblock in {\em Signal Processing Advances in Wireless Communications, 2009.
+  SPAWC '09. IEEE 10th Workshop on}, June 2009, pp. 697--701.
+
+\bibitem{AD11}
+H.~Zhu and G.~B. Giannakis,
+\newblock ``Exploiting sparse user activity in multiuser detection,''
+\newblock {\em IEEE Transactions on Communications}, vol. 59, no. 2, pp.
+  454--465, Feb. 2011.
+
+\bibitem{IFHMM}
+J.~{Van Gael}, Y.~W. Teh, and Z.~Ghahramani,
+\newblock ``The infinite factorial hidden {M}arkov model,''
+\newblock in {\em Advances in Neural Information Processing Systems ({NIPS})},
+  2009, vol.~21.
+
+\bibitem{StickBreakingIBP}
+Y.~W. Teh, D.~{G\"or\"ur}, and Z.~Ghahramani,
+\newblock ``Stick-breaking construction for the {I}ndian buffet process,''
+\newblock in {\em Proceedings of the International Conference on Artificial
+  Intelligence and Statistics}, 2007, vol.~11.
+
+\bibitem{lindsten2014particle}
+F.~Lindsten, M.~I Jordan, and T.~B. Sch{\"o}n,
+\newblock ``Particle {G}ibbs with ancestor sampling,''
+\newblock {\em The Journal of Machine Learning Research}, vol. 15, no. 1, pp.
+  2145--2184, 2014.
+
+\bibitem{Bahl74}
+L.~R. Bahl, J.~Cocke, F.~Jelinek, and J.~Raviv,
+\newblock ``Optimal decoding of linear codes for minimizing symbol error
+  rate,''
+\newblock {\em IEEE Transactions on Information Theory}, vol. 20, no. 2, pp.
+  284--287, Mar. 1974.
+
+\end{thebibliography}

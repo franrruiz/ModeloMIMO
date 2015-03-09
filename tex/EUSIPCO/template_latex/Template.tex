@@ -1,0 +1,147 @@
+% Template for EUSIPCO 2015 paper; to be used with:
+%          spconf.sty  - LaTeX style file, and
+%          IEEEbib.bst - IEEE bibliography style file.
+% --------------------------------------------------------------------------
+\documentclass[a4paper]{article}
+\usepackage{spconf,amsmath,graphicx,cite}
+
+% Example definitions.
+% --------------------
+\def\x{{\mathbf x}}
+\def\L{{\cal L}}
+
+% Title.
+% ------
+\title{A Bayesian Nonparametric Approach for Blind Multiuser Channel Estimation}
+%
+% Single address.
+% ---------------
+\name{Author(s) Name(s)\thanks{Thanks to XYZ agency for funding.}}
+\address{Author Affiliation(s)}
+%
+% For example:
+% ------------
+%\address{School\\
+%	Department\\
+%	Address}
+%
+% Two addresses (uncomment and modify for two-address case).
+% ----------------------------------------------------------
+%\twoauthors
+%  {A. Author-one, B. Author-two\sthanks{Thanks to XYZ agency for funding.}}
+%	{School A-B\\
+%	Department A-B\\
+%	Address A-B}
+%  {C. Author-three, D. Author-four\sthanks{The fourth author performed the work
+%	while at ...}}
+%	{School C-D\\
+%	Department C-D\\
+%	Address C-D}
+%
+% Multiple author/addresses combination (use only in particular cases).
+% ---------------------------------------------------------------------
+%\name{A. Author-one$^*$, B. Author-two$^*$$^\dagger$, C. Author-three$^\dagger$, D. Author-four$^\ddagger$ %
+%	\thanks{General thanks/acknowledgment}%
+%	\thanks{$^*$ Thanks/acknowledgments for authors marked with *}%
+%	\thanks{$^\dagger$ Thanks/acknowledgments for authors marked with $\dagger$}%
+%	\thanks{$^\ddagger$ Thanks/acknowledgments for authors marked with $\ddagger$}%
+%}
+%\address{%
+%    \tabular{c}
+%		$^*$ Institute ABC\\
+%		Group Group ABC\\
+%		Address ABC
+%	\endtabular
+%	\hskip 0.5in
+%    \tabular{c}
+%		$^\dagger$ School DEF\\
+%		Department DEF\\
+%		Address DEF
+%	\endtabular
+%	\hskip 0.5in
+%    \tabular{c}
+%		$^\ddagger$ Company GHI\\
+%		Department GHI\\
+%		Address GHI
+%	\endtabular
+%}
+%
+% The symbol order for multiple author combination is:
+%  $^*$, $^\dagger$, $^\ddagger$, $^\mathsection$, $^\mathparagraph$, $^\|$,
+%  $^{**}$, $^{\dagger\dagger}$, $^{\ddagger\ddagger}$, ...
+%
+%
+% Alternative multiple author/addresses combination (use only in particular cases).
+% ---------------------------------------------------------------------------------
+%\name{A. Author-one$^*$, B. Author-two$^*$$^\dagger$, C. Author-three$^\dagger$, D. Author-four$^\ddagger$ %
+%	\thanks{General thanks/acknowledgment}%
+%	\thanks{$^*$ Thanks/acknowledgments for authors marked with *}%
+%	\thanks{$^\dagger$ Thanks/acknowledgments for authors marked with $\dagger$}%
+%	\thanks{$^\ddagger$ Thanks/acknowledgments for authors marked with $\ddagger$}%
+%}
+%\address{%
+%	$^*$ Institute ABC, Group Group ABC, Address ABC\\
+%	$^\dagger$ School DEF, Department DEF, Address DEF\\
+%	$^\ddagger$ Company GHI, Department GHI, Address GHI\\
+%}
+%
+% The symbol order for multiple author combination is:
+%  $^*$, $^\dagger$, $^\ddagger$, $^\mathsection$, $^\mathparagraph$, $^\|$,
+%  $^{**}$, $^{\dagger\dagger}$, $^{\ddagger\ddagger}$, ...
+%
+\begin{document}
+
+%
+\maketitle
+%
+\begin{abstract}
+The abstract should appear at the top of the left-hand column of text, about
+0.5 inch (12 mm) below the title area and it should be no more than 3.125 inches (80 mm) in
+length.  Leave a 0.5 inch (12 mm) space between the end of the abstract and the
+beginning of the main text.  The abstract should must contain 100 to 150
+words, and must be identical to the abstract text submitted electronically
+along with the paper cover sheet.  All manuscripts must be in English.
+\end{abstract}
+%
+\begin{keywords}
+One, two, three, four, five
+\end{keywords}
+%
+\section{Introduction}
+\label{sec:intro}
+
+One of the trends in wireless communication networks is the increase of heterogeneity. It is not new that users of wireless communication networks (WCNs) are no longer only humans talking, but also includes machine-to-machine (M2M) communications, involving communication between a sensor/actuator and a corresponding application server in the network. However, the M2M traffic is distinct from
+consumer traffic because, while consumer traffic characterized by small number of long lived sessions, the M2M traffic involves a large number of short-lived sessions involving transactions of a few hundred bytes  \cite{Dhillon2013}. Moreover, this trend is far to change, since, although the are millions of M2M cellular devices currently operating in in WCNs, the industry expects this number increase ten-fold in the years to come \cite{Dhillon2013}. 
+%
+This results in a change of the traffic in WCNs,  leading to multiuser communication systems in which large numbers of users aim to enter or leave  the system (i.e., they start or stop transmitting) at any given time. 
+%
+In this context,  establishing dedicated bearers for data transmission might be highly inefficient \cite{Dhillon2013}. Thus, the first question that arises is how to allow the users access the system such that we reduce the signaling overhead. Previous works find that transmitting the small pieces of information in the random access request itself is more efficient \cite{Chen2010}. 
+
+
+In this paper we address the problem of determining the number of users transmitting in a memoryless communication
+system jointly with the channel estimation and the detection of the transmitted data. In particular, we aim to solve this problem in a fully unsupervised way, where no signaling data are used. To this end, we propose a Bayesian nonparametric model in which we assume a potentially infinite number of transmitters that might start transmitting short bursts of symbols at any time, such that only a finite subset of the transmitters become active during an observation period while the remaining (infinite) transmitters remains in a idle state (i.e., they do not transmit). 
+%
+Our approach consists on modeling all transmitters as an unbounded number of independent chains in an infinite factorial HMM (iFHMM) \cite{IFHMM}, in which each chain representing a transmitter has high probabilities of remaining in either the active or idle states. Hence, the symbols sent by each transmitter can be viewed as a hidden sequence that the receiver needs to reconstruct from the observations (i.e., the received sequence). 
+
+
+The proposed approach  models a general scenario that represents several specific applications in, for instance, the context of wireless sensor networks, where the communication nodes can often switch on and off asynchronously during operation; in multiple-input multiple-output (MIMO) multiuser communication systems \cite{Hoydis13} in which base station has a very large number of antennas and the mobile devices use a single antenna to communicate within the network; or in a code-division multiple access (CDMA) context where a set of terminals randomly access the channel to communicate with a common access point, which receives the superposition of signals from the active terminals only \cite{Vazquez2013}. In the context of CDMA systems, several recent papers addressing the problem of user activity and identification can be found in the literature. In \cite{AD4}, a multiuser detector that separates the identification of the active users from the detection of the symbols is proposed. The authors in \cite{AD10} propose a method to identify the number and identity of the active users in a direct sequence CDMA (DS-CDMA) system, by using a set of training data. Therefore, no symbol detection is performed in this stage.  In \cite{AD11}, a Bayesian approach, restricted to the case where the channel has been previously estimated, is presented. More recently, in \cite{Vazquez2013}, the authors jointly solve the user identification problem while performing joint channel estimation and
+data detection. 
+%
+A characteristic shared by all these methods is the assumption of an explicit upper bound for the number of transmitters, which makes sense in a DS-CDMA system but may represent a limitation in other scenarios.
+
+
+Due to its nonparametric nature, our model becomes flexible enough to account for any number of transmitters, without the need of additional previous knowledge or bounds.  \textbf{Completar con experimentos.}
+
+% \footnote{Note that the IFHMM in \cite{IFHMM} defines a probability distribution over an unbounded number of binary Markov chains (i.e., it allows only the active and inactive states). Then, we need to extend this model to account for any number of states, which will include the symbols sent by each transmitter while active.}
+
+
+
+
+% References should be produced using the bibtex program from suitable
+% BiBTeX files (here: strings, refs, manuals). The IEEEbib.bst bibliography
+% style file from IEEE produces unsorted bibliography list.
+% -------------------------------------------------------------------------
+\bibliographystyle{IEEEbib}
+\bibliography{strings,Bib}
+
+\end{document}

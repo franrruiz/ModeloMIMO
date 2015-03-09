@@ -1,0 +1,53 @@
+\begin{thebibliography}{1}
+
+\bibitem{Dhillon2013}
+H.~S. Dhillon, H.~C. Huang, H.~Viswanathan, and Valenzuela~R. A.,
+\newblock ``Fundamentals of throughput maximization with random arrivals for
+  {M2M} communications,''
+\newblock {\em CoRR}, vol. abs/1307.0585, 2013.
+
+\bibitem{Chen2010}
+Y.~Chen and W.~Wang,
+\newblock ``Machine-to-machine communication in lte-a,''
+\newblock in {\em Vehicular Technology Conference Fall (VTC 2010-Fall), 2010
+  IEEE 72nd}, Sept 2010, pp. 1--4.
+
+\bibitem{IFHMM}
+J.~{Van Gael}, Y.~W. Teh, and Z.~Ghahramani,
+\newblock ``The infinite factorial hidden {M}arkov model,''
+\newblock in {\em Advances in Neural Information Processing Systems ({NIPS})},
+  2009, vol.~21.
+
+\bibitem{Hoydis13}
+J.~Hoydis, S.~ten Brink, and M.~Debbah,
+\newblock ``Massive mimo in the ul/dl of cellular networks: How many antennas
+  do we need?,''
+\newblock {\em IEEE Journal on Selected Areas in Communications}, vol. 31, no.
+  2, pp. 160 -- 171, Feb. 2013.
+
+\bibitem{Vazquez2013}
+M.~A. Vazquez and J.~Miguez,
+\newblock ``User activity tracking in ds-cdma systems,''
+\newblock {\em Vehicular Technology, IEEE Transactions on}, vol. 62, no. 7, pp.
+  3188--3203, Sept 2013.
+
+\bibitem{AD4}
+Wei-Chiang Wu and Kwang-Cheng Chen,
+\newblock ``Identification of active users in synchronous {CDMA} multiuser
+  detection,''
+\newblock {\em Selected Areas in Communications, IEEE Journal on}, vol. 16, no.
+  9, pp. 1723--1735, dec 1998.
+
+\bibitem{AD10}
+D.~Angelosante, E.~Grossi, G.~B. Giannakis, and M.~Lops,
+\newblock ``Sparsity-aware estimation of {CDMA} system parameters,''
+\newblock in {\em Signal Processing Advances in Wireless Communications, 2009.
+  SPAWC '09. IEEE 10th Workshop on}, June 2009, pp. 697--701.
+
+\bibitem{AD11}
+H.~Zhu and G.~B. Giannakis,
+\newblock ``Exploiting sparse user activity in multiuser detection,''
+\newblock {\em IEEE Transactions on Communications}, vol. 59, no. 2, pp.
+  454--465, Feb. 2011.
+
+\end{thebibliography}
