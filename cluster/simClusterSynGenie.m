@@ -9,10 +9,7 @@ function simClusterSynGenie(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,itClust
 % returns only 2000 (20%)
 % 
 
-
 addpath(genpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab'));
-%addpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab/auxFunc/mtimesx_20110223');
-%addpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab/auxFunc/mtimesx_20110223/compiled');
 
 randn('seed',round(sum(1e5*clock)+itCluster));
 rand('seed',round(sum(1e5*clock)+itCluster));
@@ -47,7 +44,7 @@ param.storeIters = round(Niter/5);
 param.header = [];
 param.onOffModel = 0;
 
-%% Chooise noiseVar
+%% Choose noiseVar
 if(simId>=3)
     noiseVar = 10^(-SNR/10);
 else
@@ -118,31 +115,66 @@ samplesPGAS.nest(1,1,:) = param.T;
 samplesPGAS.slice = 0;
 samplesPGAS.epAcc = 0;
 
-%% Inference using PGAS
+samplesFFBS = samplesPGAS;   % Initialize FFBS as PGAS
+
+%% Inference using PGAS and FFBS
 if(~flagRecovered)
-    auxSample = samplesPGAS;
-    Zaux = zeros(param.bnp.Mini,param.T,1+length(param.constellation));
+    auxSamplePGAS = samplesPGAS;
+    ZauxPGAS = zeros(param.bnp.Mini,param.T,1+length(param.constellation));
+    auxSampleFFBS = samplesFFBS;
+    ZauxFFBS = zeros(param.bnp.Mini,param.T,1+length(param.constellation));
 end
 for it=itInit+1:param.Niter
-    [auxSample.Z auxSample.seq] = pgas_main(data,auxSample,hyper,param);
-    % Update Zaux (to average)
+    %% Run PGAS
+    [auxSamplePGAS.Z auxSamplePGAS.seq] = pgas_main(data,auxSamplePGAS,hyper,param);
+    % Update ZauxPGAS (to average)
     if(it>param.Niter-param.storeIters)
         for t=1:param.T
-            for m=1:size(auxSample.Z,1)
-                Zaux(m,t,auxSample.seq(m,t)+1) = 1+Zaux(m,t,auxSample.seq(m,t)+1);
+            for m=1:size(auxSamplePGAS.Z,1)
+                ZauxPGAS(m,t,auxSamplePGAS.seq(m,t)+1) = 1+ZauxPGAS(m,t,auxSamplePGAS.seq(m,t)+1);
             end
         end
     end
-    % Save tmp results to file
+    %% Run FFBS
+    if((length(param.constellation)+1)^(2*Ltrue)<1e6)
+        [auxSampleFFBS.Z auxSampleFFBS.seq valnul] = sample_Z_FFBS(data,auxSampleFFBS,hyper,param);
+        % Update ZauxFFBS (to average)
+        if(it>param.Niter-param.storeIters)
+            for t=1:param.T
+                for m=1:size(auxSampleFFBS.Z,1)
+                    ZauxFFBS(m,t,auxSampleFFBS.seq(m,t)+1) = 1+ZauxFFBS(m,t,auxSampleFFBS.seq(m,t)+1);
+                end
+            end
+        end
+    end
+    %% Save tmp results to file
     if(mod(it,param.saveCycle)==0)
-        save([saveTmpFolder '/it' num2str(it) '.mat'],'auxSample','Zaux');
+        save([saveTmpFolder '/it' num2str(it) '.mat'],'auxSamplePGAS','ZauxPGAS','auxSampleFFBS','ZauxFFBS');
+        % If successfully saved, delete previous temporary file
+        if(exist([saveTmpFolder '/it' num2str(it-param.saveCycle) '.mat'],'file'))
+            delete([saveTmpFolder '/it' num2str(it-param.saveCycle) '.mat']);
+        end
     end
 end
-[valnul auxIdx] = max(Zaux,[],3);
+% Performance of PGAS
+[valnul auxIdx] = max(ZauxPGAS,[],3);
 auxConstellation = [0 param.constellation];
-auxSample.seq = auxIdx-1;
-auxSample.Z = auxConstellation(auxIdx);
-[ADER_PGAS2 SER_ALL_PGAS2 SER_ACT_PGAS2 MMSE_PGAS2 vec_ord rot] = compute_error_rates(data,auxSample,hyper,param,0,0);
+auxSamplePGAS.seq = auxIdx-1;
+auxSamplePGAS.Z = auxConstellation(auxIdx);
+[ADER_PGAS2 SER_ALL_PGAS2 SER_ACT_PGAS2 MMSE_PGAS2 vec_ord rot] = compute_error_rates(data,auxSamplePGAS,hyper,param,0,0);
+
+% Performance of FFBS
+ADER_FFBS2 = NaN;
+SER_ALL_FFBS2 = NaN;
+SER_ACT_FFBS2 = NaN;
+MMSE_FFBS2 = NaN;
+if((length(param.constellation)+1)^(2*Ltrue)<1e6)
+    [valnul auxIdx] = max(ZauxFFBS,[],3);
+    auxConstellation = [0 param.constellation];
+    auxSampleFFBS.seq = auxIdx-1;
+    auxSampleFFBS.Z = auxConstellation(auxIdx);
+    [ADER_FFBS2 SER_ALL_FFBS2 SER_ACT_FFBS2 MMSE_FFBS2 vec_ord rot] = compute_error_rates(data,auxSampleFFBS,hyper,param,0,0);
+end
 
 %% Inference using BCJR
 ADER_BCJR2 = NaN;
@@ -162,6 +194,11 @@ end
 
 %% Save results
 save([saveFile '.mat'],'ADER_PGAS2','SER_ALL_PGAS2','SER_ACT_PGAS2','MMSE_PGAS2',...
+                       'ADER_FFBS2','SER_ALL_FFBS2','SER_ACT_FFBS2','MMSE_FFBS2',...
                        'ADER_BCJR2','SER_ALL_BCJR2','SER_ACT_BCJR2','MMSE_BCJR2',...
                        '-append');
-
+                   
+%% If successfully saved, detele previous temporary file
+if(exist([saveTmpFolder '/it' num2str(param.Niter) '.mat'],'file'))
+    delete([saveTmpFolder '/it' num2str(param.Niter) '.mat']);
+end
