@@ -55,7 +55,7 @@ noise = sqrt(param.gen.s2n/2)*randn(param.Nr,param.T)+1i*sqrt(param.gen.s2n/2)*r
 % Generate the observations:
 data.obs = zeros(param.Nr,param.T);
 for t=1:param.T
-    for i=0:param.gen.L_true-1
+    for i=0:max(param.gen.L_true)-1
         if(t-i<=0)
             data.obs(:,t) = data.obs(:,t) + data.channel(:,:,i+1)*param.gen.symbol0*ones(param.gen.Nt,1);
         else

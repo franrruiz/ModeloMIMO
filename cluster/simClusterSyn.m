@@ -40,23 +40,50 @@ if(simId>=3)
 else
     noiseVar = param.Nr*10^(-SNR/10);
 end
-if(M==1)
+if(log2(M)==1)
     noiseVar = 2*noiseVar;
 end
 param.gen.s2n = noiseVar;
 param.gen.L_true = Ltrue*ones(1,Nt);
 param.gen.varH = 1;
-if(M==1)
+if(log2(M)==1)
     param.gen.varH = 2*param.gen.varH;
 end
 param.gen.Nt = Nt;
 param.gen.burstLength = round(T/2)*ones(1,param.gen.Nt);
 param.gen.burstLengthStdFactor = inf;
 param.gen.symbol0 = 0;
-param.gen.sparsityH = 0.1;
+param.gen.sparsityH = 0;
 
-data = generate_data_bursts(param);
-
+if(simId<=10)
+    data = generate_data_bursts(param);
+elseif(simId==11)
+    % If simId==11, load data from file
+    load(['/export/clusterdata/franrruiz87/ModeloMIMO/data/syn/' num2str(simId) '/T' num2str(param.T) '_itCluster' num2str(itCluster) '.mat']);
+    data.channel = channelGen(1:param.Nr,1:param.gen.Nt,1:max(param.gen.Ltrue));
+    data.symbols = symbolsGen{log2(M)}(1:param.gen.Nt,1:param.T);
+    data.seq = seqGen{log2(M)}(1:param.gen.Nt,1:param.T);
+    data.obs = zeros(param.Nr,param.T);
+    
+    noise = sqrt(param.gen.s2n/2)*noiseGen(1:param.Nr,1:param.T);
+    if(log2(M)==1)
+        data.symbols = real(data.symbols);
+        data.channel = sqrt(2)*real(data.channel);
+        noise = sqrt(2)*real(noise);
+    end
+    for t=1:param.T
+        for i=0:max(param.gen.L_true)-1
+            if(t-i<=0)
+                data.obs(:,t) = data.obs(:,t) + data.channel(:,:,i+1)*param.gen.symbol0*ones(param.gen.Nt,1);
+            else
+                data.obs(:,t) = data.obs(:,t) + data.channel(:,:,i+1)*data.symbols(:,t-i);
+            end
+        end
+    end
+    data.obs = data.obs+noise;
+else
+    error('I do not know how to generate data');
+end
 %% Configuration parameters for BCJR, PGAS, EP, FFBS and collapsed Gibbs
 param.bcjr.p1 = 0.95;
 param.bcjr.p2 = 0.05;

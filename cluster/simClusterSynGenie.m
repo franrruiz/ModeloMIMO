@@ -50,7 +50,7 @@ if(simId>=3)
 else
     noiseVar = param.Nr*10^(-SNR/10);
 end
-if(M==1)
+if(log2(M)==1)
     noiseVar = 2*noiseVar;
 end
 

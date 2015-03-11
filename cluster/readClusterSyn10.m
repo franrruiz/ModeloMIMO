@@ -11,7 +11,7 @@ Niter =  10000;
 
 %%%%%%%%%%%%%%%
 pRemove = 0.0;
-plotToFile = 1;
+plotToFile = 0;
 flagPlotGenie = 0;
 %%%%%%%%%%%%%%%
 
@@ -35,7 +35,7 @@ onOffModel = 0;
   %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 10; etiquetaX='log_2|A|'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
 
   % L = 3:
-  sweep_var = 'SNR'; sweep_vec = -18:3:0; simId = 10; etiquetaX='SNR (dB)'; lugar='NorthEast'; hold_var='L'; hold_vec=3; Ltrue=3;
+  sweep_var = 'SNR'; sweep_vec = -3:3:0; simId = 10; etiquetaX='SNR (dB)'; lugar='NorthEast'; hold_var='L'; hold_vec=7; Ltrue=7;
   %sweep_var = 'M'; sweep_vec = 2:2:4; simId = 10; etiquetaX='log_2|A|'; lugar='NorthWest'; hold_var='L'; hold_vec=3; Ltrue=3;
   %sweep_var = 'SNR'; sweep_vec = -18:3:-12; simId = 10; etiquetaX='SNR (dB)'; lugar='NorthEast'; hold_var='L'; hold_vec=2;
 
