@@ -60,7 +60,7 @@ if(simId<=10)
 elseif(simId==11)
     % If simId==11, load data from file
     load(['/export/clusterdata/franrruiz87/ModeloMIMO/data/syn/' num2str(simId) '/T' num2str(param.T) '_itCluster' num2str(itCluster) '.mat']);
-    data.channel = channelGen(1:param.Nr,1:param.gen.Nt,1:max(param.gen.Ltrue));
+    data.channel = channelGen(1:param.Nr,1:param.gen.Nt,1:max(param.gen.L_true));
     data.symbols = symbolsGen{log2(M)}(1:param.gen.Nt,1:param.T);
     data.seq = seqGen{log2(M)}(1:param.gen.Nt,1:param.T);
     data.obs = zeros(param.Nr,param.T);
