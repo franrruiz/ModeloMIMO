@@ -9,7 +9,7 @@ Niter =  10000;
 %% Scenario definition
 
 %%%%%%%%%%%%%%%
-plotToFile = 0;
+plotToFile = 1;
 %%%%%%%%%%%%%%%
 
 %Base scenario
@@ -24,14 +24,14 @@ lHead = 0;
 onOffModel = 0;
 
 % Sweep and hold variables:
-sweep_var = 'L'; sweep_vec = 1:2; simId = 9; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=0;
+sweep_var = 'L'; sweep_vec = 1:3; simId = 9; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=0;
 
 marcadores = {'+','^','o'};
 estilos = {'-','--',':'};
 colores = {'m','b','k'};
 leyenda = {'PGAS','FFBS'};
 anchoSm = 3; altoSm = 2;
-%anchoLar = 5; altoLar = 3.5;
+anchoLar = 5; altoLar = 3.5;
 
 %% Initialize metrics of interest
 ALL_ADER = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
@@ -379,9 +379,9 @@ set(gca,'YTick',[min(boxAUX(:)):1:max(boxAUX(:))]);
 deltaXaxis = 0.175;
 hold on;
 if(strcmp(sweep_var,'Nt'))
-    plot([1-deltaXaxis 1+deltaXaxis 2-deltaXaxis 2+deltaXaxis],sweep_vec,'p','Color',[0 0.4 0],'MarkerFaceColor',[0 0.4 0],'MarkerSize',10);
+    plot([1-deltaXaxis 1+deltaXaxis 2-deltaXaxis 2+deltaXaxis 3-deltaXaxis 3+deltaXaxis],sweep_vec,'p','Color',[0 0.4 0],'MarkerFaceColor',[0 0.4 0],'MarkerSize',10);
 else
-    plot([1-deltaXaxis 1+deltaXaxis 2-deltaXaxis 2+deltaXaxis],Ntaux*ones(1,4),'p','Color',[0 0.4 0],'MarkerFaceColor',[0 0.4 0],'MarkerSize',10);
+    plot([1-deltaXaxis 1+deltaXaxis 2-deltaXaxis 2+deltaXaxis 3-deltaXaxis 3+deltaXaxis],Ntaux*ones(1,6),'p','Color',[0 0.4 0],'MarkerFaceColor',[0 0.4 0],'MarkerSize',10);
 end
 if(plotToFile)
     figurapdf(anchoSm,altoSm);

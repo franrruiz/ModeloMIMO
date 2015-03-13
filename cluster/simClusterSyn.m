@@ -84,6 +84,7 @@ elseif(simId==11)
 else
     error('I do not know how to generate data');
 end
+
 %% Configuration parameters for BCJR, PGAS, EP, FFBS and collapsed Gibbs
 param.bcjr.p1 = 0.95;
 param.bcjr.p2 = 0.05;
