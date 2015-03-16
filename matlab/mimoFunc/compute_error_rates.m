@@ -1,4 +1,4 @@
-function [ADER SER_ALL SER_ACT MMSE vec_ord rot] = compute_error_rates(data,samples,hyper,param,flagExhaustiveOrder,flagExhaustiveRot)
+function [ADER SER_ALL SER_ACT MMSE vec_ord rot ADER_indiv SER_ALL_indiv SER_ACT_indiv MMSE_indiv] = compute_error_rates(data,samples,hyper,param,flagExhaustiveOrder,flagExhaustiveRot)
 % Returns:
 % -ADER: Activity detection error rate (i.e., prob that a trasmitter is
 %        idle when it is said to be trasnmitting or vice-versa)
@@ -6,11 +6,15 @@ function [ADER SER_ALL SER_ACT MMSE vec_ord rot] = compute_error_rates(data,samp
 %           the constellation
 % -SER_ACT: Symbol error rate, conditioned on the actual trasmitter being
 %           active
+% -MMSE: Mean Square Error (w.r.t. the channel coefficients)
 % -vec_ord: Vector containing the order of the estimated transmitters
 %           needed to match the true ones
 % -rot: Vector containing the coefficients to rotate the constellation in
 %       order to match the true symbols
 %
+% The variables ending with "_indiv" correspond to the individual ADER, SER
+% or MSE (for each transmitter)
+% 
 
 if(nargin==4)
     flagExhaustiveOrder = 1;
@@ -43,10 +47,18 @@ elseif(param.L<size(data.channel,3))
     MMSE = NaN;
     vec_ord = NaN;
     rot = NaN;
+    ADER_indiv = NaN;
+    SER_ALL_indiv = NaN;
+    SER_ACT_indiv = NaN;
+    MMSE_indiv = NaN;
     return;
 end
 
 idxNZ = find(data.symbols~=0);
+idxNZ_indiv = cell(1,Nt);
+for m=1:Nt
+    idxNZ_indiv{m} = find(data.symbols(m,:)~=0);
+end
 
 if(Mest==Nt)
     % Hay Mest! permutaciones
@@ -76,6 +88,16 @@ if(Mest==Nt)
                     SER_ACT = sum(abs(Zaux(idxNZ)-data.symbols(idxNZ))>thr)/length(idxNZ);
                     rot = rot_aux;
                     MMSE = sum(abs(Haux(:)-data.channel(:)).^2)/numel(data.channel);
+                    
+                    ADER_indiv = sum((Zaux~=0)~=(data.seq~=0),2)/T;
+                    SER_ACT_indiv = zeros(Nt,1);
+                    SER_ALL_indiv = zeros(Nt,1);
+                    MMSE_indiv = zeros(Nt,1);
+                    for nt=1:Nt
+                        SER_ACT_indiv(nt) = sum(abs(Zaux(nt,idxNZ_indiv{nt})-data.symbols(nt,idxNZ_indiv{nt}))>thr)/length(idxNZ_indiv{nt});
+                        SER_ALL_indiv(nt) = sum(abs(Zaux(nt,:)-data.symbols(nt,:))>thr)/T;
+                        MMSE_indiv(nt) = sum(sum(abs(Haux(:,nt,:)-data.channel(:,nt,:)).^2))/numel(data.channel(:,nt,:));
+                    end
                 end
             end
         end
@@ -106,6 +128,16 @@ elseif(Mest>Nt)
                         SER_ACT = sum(abs(Zaux(idxNZ)-data.symbols(idxNZ))>thr)/length(idxNZ);
                         rot = rot_aux;
                         MMSE = sum(abs(Haux(:)-data.channel(:)).^2)/numel(data.channel);
+                        
+                        ADER_indiv = sum((Zaux~=0)~=(data.seq~=0),2)/T;
+                        SER_ACT_indiv = zeros(Nt,1);
+                        SER_ALL_indiv = zeros(Nt,1);
+                        MMSE_indiv = zeros(Nt,1);
+                        for nt=1:Nt
+                            SER_ACT_indiv(nt) = sum(abs(Zaux(nt,idxNZ_indiv{nt})-data.symbols(nt,idxNZ_indiv{nt}))>thr)/length(idxNZ_indiv{nt});
+                            SER_ALL_indiv(nt) = sum(abs(Zaux(nt,:)-data.symbols(nt,:))>thr)/T;
+                            MMSE_indiv(nt) = sum(sum(abs(Haux(:,nt,:)-data.channel(:,nt,:)).^2))/numel(data.channel(:,nt,:));
+                        end
                     end
                 end
             end

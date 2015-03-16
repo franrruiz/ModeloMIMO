@@ -27,6 +27,7 @@ Ltrue = 1;
 M = 2;
 lHead = 0;
 onOffModel = 0;
+MAX_Nt = 10;
 
 % Sweep and hold variables:
   % L = 1:
