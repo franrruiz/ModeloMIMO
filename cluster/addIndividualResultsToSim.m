@@ -1,6 +1,7 @@
 function addIndividualResultsToSim(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,itCluster,simId)
 
 addpath(genpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab'));
+addpath('./../matlab/mimoFunc');
 
 saveFolder = ['/export/clusterdata/franrruiz87/ModeloMIMO/results/synthetic/' num2str(simId) '/T' num2str(T) '_Nt' num2str(Nt) '_Nr' num2str(Nr) '_M' num2str(M) '_Ltrue' num2str(Ltrue) '_L' num2str(L) '_SNR' num2str(SNR) '_lHead' num2str(lHead), '_onOff' num2str(onOffModel)];
 saveFile = [saveFolder '/itCluster' num2str(itCluster)];
@@ -26,6 +27,7 @@ param.L = L;
 param.storeIters = length(samplesAll);
 param.infer.sampleChannel = 1;
 param.Nr = Nr;
+param.Niter = Niter;
 
 hyper = [];
 
