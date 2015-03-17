@@ -11,10 +11,10 @@ Niter =  10000;
 
 %%%%%%%%%%%%%%%
 pRemove = 0.0;
-plotToFile = 0;
+plotToFile = 1;
 flagPlotGenie = 0;
 flagRestrictiveItCluster = 0;
-thrSER = 0.05;
+thrSER = 0.1;
 %%%%%%%%%%%%%%%
 
 %Base scenario
@@ -32,7 +32,7 @@ MAX_Nt = 10;
 % Sweep and hold variables:
   % L = 1:
   %sweep_var = 'lHead'; sweep_vec = 0:3:3; simId = 11; etiquetaX='Header Length'; lugar='NorthEast'; hold_var='onOffModel'; hold_vec=0:1;
-  sweep_var = 'SNR'; sweep_vec = -18:3:0; simId = 11; etiquetaX='SNR (dB)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
+  sweep_var = 'SNR'; sweep_vec = -18:3:0; simId = 11; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
   %sweep_var = 'Nt'; sweep_vec = 2:2:10; simId = 11; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
   %sweep_var = 'Nr'; sweep_vec = 5:5:20; simId = 11; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3;
   %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 11; etiquetaX='log_2|A|'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
@@ -46,7 +46,7 @@ marcadores = {'+','^','o'};
 estilos = {'-','--',':'};
 colores = {'m','b','k'};
 leyenda = {'iFHMM','PGAS','BCJR'};
-anchoSm = 3; altoSm = 2;
+anchoSm = 4; altoSm = 3;  % Before: 3,2
 anchoLar = 5; altoLar = 3.5;
 
 %% Initialize metrics of interest
@@ -56,6 +56,7 @@ ALL_LLH = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
 ALL_SER_ALL = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
 ALL_SER_ACT = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
 ALL_MEST = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
+ALL_RECOVERED = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
 
 ALL_ADER_PGAS = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
 ALL_SER_ALL_PGAS = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
@@ -141,13 +142,14 @@ for sweepV=sweep_vec
                     
             if(exist(saveFile,'file'))
                 clear ADER_PGAS2 ADER_BCJR2
-                load(saveFile,'ADER','MMSE','SER_ACT','SER_ALL','LLH','M_EST','*_PGAS2','*_BCJR2');
+                load(saveFile,'ADER','MMSE','SER_ACT','SER_ALL','LLH','M_EST','*_indiv','*_PGAS2','*_BCJR2');
                 ALL_ADER(itCluster,:,idxSweep,idxHold) = ADER;
                 ALL_MMSE(itCluster,:,idxSweep,idxHold) = MMSE;
                 ALL_LLH(itCluster,:,idxSweep,idxHold) = LLH;
                 ALL_SER_ALL(itCluster,:,idxSweep,idxHold) = SER_ALL;
                 ALL_SER_ACT(itCluster,:,idxSweep,idxHold) = SER_ACT;
                 ALL_MEST(itCluster,:,idxSweep,idxHold) = M_EST;
+                ALL_RECOVERED(itCluster,1,idxSweep,idxHold) = sum(SER_ALL_indiv<thrSER);
                 
                 if(exist('ADER_PGAS2','var'))
                     ALL_ADER_PGAS(itCluster,1,idxSweep,idxHold) = ADER_PGAS2;
@@ -358,9 +360,9 @@ for holdV=hold_vec
     end
     if(plotToFile)
         figurapdf(anchoSm,altoSm);
-        print('-dpdf',['./plots/syn10/ADER_' sweep_var '_s.pdf']);
+        print('-dpdf',['./plots/syn11/ADER_' sweep_var '_s.pdf']);
         figurapdf(anchoLar,altoLar);
-        print('-dpdf',['./plots/syn10/ADER_' sweep_var '_g.pdf']);
+        print('-dpdf',['./plots/syn11/ADER_' sweep_var '_g.pdf']);
     end
     
     % Plot SER_ALL
@@ -404,9 +406,9 @@ for holdV=hold_vec
     end
     if(plotToFile)
         figurapdf(anchoSm,altoSm);
-        print('-dpdf',['./plots/syn10/SER_' sweep_var '_s.pdf']);
+        print('-dpdf',['./plots/syn11/SER_' sweep_var '_s.pdf']);
         figurapdf(anchoLar,altoLar);
-        print('-dpdf',['./plots/syn10/SER_' sweep_var '_g.pdf']);
+        print('-dpdf',['./plots/syn11/SER_' sweep_var '_g.pdf']);
     end
     
     % Plot MSE
@@ -425,9 +427,9 @@ for holdV=hold_vec
     %legend(leyenda(1));
     if(plotToFile)
         figurapdf(anchoSm,altoSm);
-        print('-dpdf',['./plots/syn10/MSE_' sweep_var '_s.pdf']);
+        print('-dpdf',['./plots/syn11/MSE_' sweep_var '_s.pdf']);
         figurapdf(anchoLar,altoLar);
-        print('-dpdf',['./plots/syn10/MSE_' sweep_var '_g.pdf']);
+        print('-dpdf',['./plots/syn11/MSE_' sweep_var '_g.pdf']);
     end
     
     % Plot DEP
@@ -450,9 +452,9 @@ for holdV=hold_vec
     %legend(leyenda(1));
     if(plotToFile)
         figurapdf(anchoSm,altoSm);
-        print('-dpdf',['./plots/syn10/DEP_' sweep_var '_s.pdf']);
+        print('-dpdf',['./plots/syn11/DEP_' sweep_var '_s.pdf']);
         figurapdf(anchoLar,altoLar);
-        print('-dpdf',['./plots/syn10/DEP_' sweep_var '_g.pdf']);
+        print('-dpdf',['./plots/syn11/DEP_' sweep_var '_g.pdf']);
     end
     
     % Plot Boxplot
@@ -477,8 +479,35 @@ for holdV=hold_vec
     grid on;
     if(plotToFile)
         figurapdf(anchoSm,altoSm);
-        print('-dpdf',['./plots/syn10/BoxM_' sweep_var '_s.pdf']);
+        print('-dpdf',['./plots/syn11/BoxM_' sweep_var '_s.pdf']);
         figurapdf(anchoLar,altoLar);
-        print('-dpdf',['./plots/syn10/BoxM_' sweep_var '_g.pdf']);
+        print('-dpdf',['./plots/syn11/BoxM_' sweep_var '_g.pdf']);
+    end
+    
+    % Plot Boxplot with #Recovered Cases
+    figure;
+    boxplot(squeeze(ALL_RECOVERED),'whisker',inf);
+    hold on;
+    plot(1:length(sweep_vec),squeeze(mean(ALL_RECOVERED,1)),'o','Color',[1 0.4 1],'MarkerFaceColor',[1 0.4 1])
+    ylabel(['#Tx with SER<' num2str(thrSER)]);
+    xlabel(etiquetaX);
+    set(gca,'Xtick',1:length(sweep_vec));
+    if(simId==2 && strcmp(sweep_var,'SNR'))
+        set(gca,'XTickLabel',sweep_vec-13);
+    else
+        set(gca,'XTickLabel',sweep_vec);
+    end
+    hold on;
+    if(strcmp(sweep_var,'Nt'))
+        plot(1:length(sweep_vec),sweep_vec,'p','Color',[0 0.5 0],'MarkerFaceColor',[0 0.5 0],'MarkerSize',8);
+    else
+        plot(1:length(sweep_vec),Ntaux*ones(size(sweep_vec)),'p','Color',[0 0.5 0],'MarkerFaceColor',[0 0.5 0],'MarkerSize',8);
+    end
+    grid on;
+    if(plotToFile)
+        figurapdf(anchoSm,altoSm);
+        print('-dpdf',['./plots/syn11/BoxRecov_' sweep_var '_s.pdf']);
+        figurapdf(anchoLar,altoLar);
+        print('-dpdf',['./plots/syn11/BoxRecov_' sweep_var '_g.pdf']);
     end
 end
