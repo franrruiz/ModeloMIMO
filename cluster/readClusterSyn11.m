@@ -32,7 +32,7 @@ MAX_Nt = 10;
 % Sweep and hold variables:
   % L = 1:
   %sweep_var = 'lHead'; sweep_vec = 0:3:3; simId = 11; etiquetaX='Header Length'; lugar='NorthEast'; hold_var='onOffModel'; hold_vec=0:1;
-  sweep_var = 'SNR'; sweep_vec = -18:3:0; simId = 11; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
+  sweep_var = 'SNR'; sweep_vec = -12:3:0; simId = 11; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
   %sweep_var = 'Nt'; sweep_vec = 2:2:10; simId = 11; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
   %sweep_var = 'Nr'; sweep_vec = 5:5:20; simId = 11; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3;
   %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 11; etiquetaX='log_2|A|'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
@@ -489,7 +489,7 @@ for holdV=hold_vec
     boxplot(squeeze(ALL_RECOVERED),'whisker',inf);
     hold on;
     plot(1:length(sweep_vec),squeeze(mean(ALL_RECOVERED,1)),'o','Color',[1 0.4 1],'MarkerFaceColor',[1 0.4 1])
-    ylabel(['#Tx with SER<' num2str(thrSER)]);
+    ylabel(['#Tx']);
     xlabel(etiquetaX);
     set(gca,'Xtick',1:length(sweep_vec));
     if(simId==2 && strcmp(sweep_var,'SNR'))
