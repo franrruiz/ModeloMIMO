@@ -57,6 +57,7 @@
 %   +returnNsamples: Number of samples that the PGAS sampler should return.
 %   +maxM: Maximum number of chains allowed. If exceeded, nothing happens but it will be slower
 %   +particles: Matrix containing the particles. It has to be initialized due to efficient memory use. Size = [maxM x max(N_PF,N_PG) x T]
+%   +flagParallel: If this field exists and takes value 1, the parallelized version of the code is used (it makes use of OpenMP)
 % -bnp: Struct with the configuration parameters for BNP inference.
 %   +betaSlice1: Beta parameter to sample from the slice variable: s=betarnd(betaSlice1,betaSlice2)*c_min.
 %   +betaSlice2: Beta parameter to sample from the slice variable: s=betarnd(betaSlice1,betaSlice2)*c_min.

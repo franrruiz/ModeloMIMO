@@ -7,7 +7,6 @@ N_PF = param.pgas.N_PF;
 N_PG = param.pgas.N_PG;
 returnN = param.pgas.returnNsamples;
 
-Q = length(param.constellation);
 if(param.flag0)
     constellation = [0 param.constellation];
 else
@@ -20,7 +19,19 @@ if(isempty(samples.seq))
 else
     flagPG = 1;
 end
-X_PG = pgas_C(Nt,param.Nr,N_PF,N_PG,M,param.T,param.L,length(constellation),constellation,data.obs,flagPG,samples.seq,samples.H,samples.s2y,samples.am,samples.bm,param.header,length(param.header),param.pgas.particles,param.onOffModel);
+
+flagParallel = 0;
+if(isfield(param.pgas,'flagParallel'))
+    if(param.pgas.flagParallel)
+        flagParallel = 1;
+    end
+end
+if(flagParallel)
+    X_PG = pgas_C_parallel(Nt,param.Nr,N_PF,N_PG,M,param.T,param.L,length(constellation),constellation,data.obs,flagPG,samples.seq,samples.H,samples.s2y,samples.am,samples.bm,param.header,length(param.header),param.pgas.particles,param.onOffModel);
+else
+    X_PG = pgas_C(Nt,param.Nr,N_PF,N_PG,M,param.T,param.L,length(constellation),constellation,data.obs,flagPG,samples.seq,samples.H,samples.s2y,samples.am,samples.bm,param.header,length(param.header),param.pgas.particles,param.onOffModel);
+end
+
 
 %% Return last obtained samples in a [Nt x T x M] matrix
 SeqEst = permute(X_PG(:,M-returnN+1:M,:),[1 3 2]);
