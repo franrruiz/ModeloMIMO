@@ -106,7 +106,7 @@ param.infer.sampleNoiseVar = 0;
 param.infer.sampleChannel = 1;
 param.infer.sampleVarH = 1;
 param.infer.simulatedTempering = 0;
-if(simId==12)
+if(simId==12 && SNR>-12)
     param.infer.simulatedTempering = 1;
     param.temper.pKeep = 19/20;
     param.temper.pNext = 0.75;
@@ -200,39 +200,7 @@ for it=itInit+1:param.Niter
     
     % Step 0) Simulated Tempering
     if(param.infer.simulatedTempering && (rand()>param.temper.pKeep))
-        temperNoiseCur = samples.s2y;
-        temperIdxCur = find(param.temper.s2yValues==temperNoiseCur);
-        if((temperIdxCur<length(param.temper.s2yValues)) && (temperIdxCur>1))
-            if(rand()<param.temper.pNext)
-                % Decrease temperature
-                temperNoiseNext = param.temper.s2yValues(temperIdxCur+1);
-                auxlogp2 = log(param.temper.pNext);
-                auxlogp1 = log(1-param.temper.pNext);
-            else
-                % Increase temperature
-                temperNoiseNext = param.temper.s2yValues(temperIdxCur-1);
-                auxlogp2 = log(1-param.temper.pNext);
-                auxlogp1 = log(param.temper.pNext);
-            end
-        elseif(temperIdxCur==length(param.temper.s2yValues))
-            temperNoiseNext = param.temper.s2yValues(temperIdxCur-1);
-            auxlogp2 = 0;
-            auxlogp1 = log(param.temper.pNext);
-        elseif(temperIdxCur==1)
-            temperNoiseNext = param.temper.s2yValues(temperIdxCur+1);
-            auxlogp2 = 0;
-            auxlogp1 = log(1-param.temper.pNext);
-        end
-        auxLLH2 = compute_llh(data,samples,hyper,param);
-        samples.s2y = temperNoiseNext;
-        auxLLH1 = compute_llh(data,samples,hyper,param);
-        if(rand()<exp(auxlogp1-auxlogp2+auxLLH1-auxLLH2))
-            % Accept
-            samples.s2y = temperNoiseNext;
-        else
-            % Reject
-            samples.s2y = temperNoiseCur;
-        end
+        samples.s2y = tempering_s2y(data,samples,hyper,param);
     else
         % Step 1)
         % -Sample the slice variable
