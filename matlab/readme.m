@@ -76,6 +76,11 @@
 %   +sampleNoiseVar: Flag to indicate if the noise variace should be sampled.
 %   +sampleChannel: Flag to indicate if the channel coefficients (and Nt) should be sampled.
 %   +sampleVarH: Flag to indicate if the variance of the channel coefficients should be sampled.
+%   +simulatedTempering: Flag to indicate if simulated tempering should be used
+% -temper: Struct containing the configuration parameters for simulated tempering
+%   +pKeep: Probability of keeping the current temperature at each iteration
+%   +pNext: Probability of proposing to decrease the noise level
+%   +s2yValues: Vector with all the considered noise variances (temperature levels in decreasing order of temperature)
 % 
 %% HYPERPARAMETERS
 % 

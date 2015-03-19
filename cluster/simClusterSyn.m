@@ -57,7 +57,7 @@ param.gen.sparsityH = 0;
 
 if(simId<=10)
     data = generate_data_bursts(param);
-elseif(simId==11)
+elseif(simId==11 || simId==12)
     % If simId==11, load data from file
     load(['/export/clusterdata/franrruiz87/ModeloMIMO/data/syn/' num2str(simId) '/T' num2str(param.T) '_itCluster' num2str(itCluster) '.mat']);
     data.channel = channelGen(1:param.Nr,1:param.gen.Nt,1:max(param.gen.L_true));
@@ -105,6 +105,13 @@ param.infer.symbolMethod = 'pgas';
 param.infer.sampleNoiseVar = 0;
 param.infer.sampleChannel = 1;
 param.infer.sampleVarH = 1;
+param.infer.simulatedTempering = 0;
+if(simId==12)
+    param.infer.simulatedTempering = 1;
+    param.temper.pKeep = 19/20;
+    param.temper.pNext = 0.75;
+    param.temper.s2yValues = 10.^(-linspace(-12,SNR,15)/10);   % (15 values from -12dB to SNR)
+end
 param.bnp.betaSlice1 = 0.5;
 param.bnp.betaSlice2 = 5;
 param.bnp.maxMnew = 15;
@@ -163,6 +170,9 @@ if(~flagRecovered)
     else
         init.s2y = 20*rand(1);    % INITIALIZE s2y TO SOME LARGE VALUE
     end
+    if(param.infer.simulatedTempering)
+        init.s2y = param.temper.s2yValues(1);    % INITIALIZE s2y TO THE LARGEST TEMPERATURE
+    end
     init.s2H = hyper.s2h*exp(-hyper.lambda*(0:param.L-1));  % INITIALIZE s2H TO ITS MEAN VALUE
     init.am = 0.95*ones(param.bnp.Mini,1);
     init.bm = 0.05*ones(param.bnp.Mini,1);
@@ -188,46 +198,83 @@ end
 for it=itInit+1:param.Niter
     %% Algorithm
     
-    % Step 1)
-    % -Sample the slice variable
-    samples.slice = sample_post_slice(data,samples,hyper,param);
-    % -Sample new sticks (and the corresponding new parameters)
-    samples = sample_newsticks(data,samples,hyper,param);
-    
-    % For PGAS, check that the number of current chains does not exceed maxM
-    if(strcmp(param.infer.symbolMethod,'pgas'))
-        if(size(samples.seq,1)>param.pgas.maxM)
-            param.pgas.maxM = size(samples.seq,1);
-            param.pgas.particles = zeros(param.pgas.maxM,max(param.pgas.N_PF,param.pgas.N_PG),param.T,'int16');
+    % Step 0) Simulated Tempering
+    if(param.infer.simulatedTempering && (rand()>param.temper.pKeep))
+        temperNoiseCur = samples.s2y;
+        temperIdxCur = find(param.temper.s2yValues==temperNoiseCur);
+        if((temperIdxCur<length(param.temper.s2yValues)) && (temperIdxCur>1))
+            if(rand()<param.temper.pNext)
+                % Decrease temperature
+                temperNoiseNext = param.temper.s2yValues(temperIdxCur+1);
+                auxlogp2 = log(param.temper.pNext);
+                auxlogp1 = log(1-param.temper.pNext);
+            else
+                % Increase temperature
+                temperNoiseNext = param.temper.s2yValues(temperIdxCur-1);
+                auxlogp2 = log(1-param.temper.pNext);
+                auxlogp1 = log(param.temper.pNext);
+            end
+        elseif(temperIdxCur==length(param.temper.s2yValues))
+            temperNoiseNext = param.temper.s2yValues(temperIdxCur-1);
+            auxlogp2 = 0;
+            auxlogp1 = log(param.temper.pNext);
+        elseif(temperIdxCur==1)
+            temperNoiseNext = param.temper.s2yValues(temperIdxCur+1);
+            auxlogp2 = 0;
+            auxlogp1 = log(1-param.temper.pNext);
         end
+        auxLLH2 = compute_llh(data,samples,hyper,param);
+        samples.s2y = temperNoiseNext;
+        auxLLH1 = compute_llh(data,samples,hyper,param);
+        if(rand()<exp(auxlogp1-auxlogp2+auxLLH1-auxLLH2))
+            % Accept
+            samples.s2y = temperNoiseNext;
+        else
+            % Reject
+            samples.s2y = temperNoiseCur;
+        end
+    else
+        % Step 1)
+        % -Sample the slice variable
+        samples.slice = sample_post_slice(data,samples,hyper,param);
+        % -Sample new sticks (and the corresponding new parameters)
+        samples = sample_newsticks(data,samples,hyper,param);
+
+        % For PGAS, check that the number of current chains does not exceed maxM
+        if(strcmp(param.infer.symbolMethod,'pgas'))
+            if(size(samples.seq,1)>param.pgas.maxM)
+                param.pgas.maxM = size(samples.seq,1);
+                param.pgas.particles = zeros(param.pgas.maxM,max(param.pgas.N_PF,param.pgas.N_PG),param.T,'int16');
+            end
+        end
+
+        % Step 2)
+        % -Sample the symbols Z
+        [samples.Z samples.seq samples.nest out] = sample_post_Z(data,samples,hyper,param);
+        % -Compute some statistics of interest
+        if(strcmp(param.infer.symbolMethod,'pgas'))
+
+        elseif(strcmp(param.infer.symbolMethod,'ep'))
+            samples.epAcc = samples.epAcc+out;
+        end
+
+        % Step 3)
+        % -Remove unused chains
+        samples = sample_remove_unused(data,samples,hyper,param);
+
+        % Step 4)
+        % -Sample the transition probabilities (semi-ordered construction)
+        [samples.am samples.bm]= sample_post_transitionProb(data,samples,hyper,param);
+
+        % Step 5)
+        % -Sample the channel H
+        samples.H = sample_post_H(data,samples,hyper,param);
+        % -Sample the noise variance
+        samples.s2y = sample_post_s2y(data,samples,hyper,param);
+        % -Sample the variance of the channel coefficients
+        samples.s2H = sample_post_s2H(data,samples,hyper,param);
     end
-    
-    % Step 2)
-    % -Sample the symbols Z
-    [samples.Z samples.seq samples.nest out] = sample_post_Z(data,samples,hyper,param);
-    % -Compute some statistics of interest
-    if(strcmp(param.infer.symbolMethod,'pgas'))
         
-    elseif(strcmp(param.infer.symbolMethod,'ep'))
-        samples.epAcc = samples.epAcc+out;
-    end
-    
-    % Step 3)
-    % -Remove unused chains
-    samples = sample_remove_unused(data,samples,hyper,param);
-    
-    % Step 4)
-    % -Sample the transition probabilities (semi-ordered construction)
-    [samples.am samples.bm]= sample_post_transitionProb(data,samples,hyper,param);
-    
-    % Step 5)
-    % -Sample the channel H
-    samples.H = sample_post_H(data,samples,hyper,param);
-    % -Sample the noise variance
-    samples.s2y = sample_post_s2y(data,samples,hyper,param);
-    % -Sample the variance of the channel coefficients
-    samples.s2H = sample_post_s2H(data,samples,hyper,param);
-    
     %% Store current sample
     if(it>param.Niter-param.storeIters)
         samplesAll{it-param.Niter+param.storeIters} = samples;
