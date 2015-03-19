@@ -22,4 +22,4 @@ echo "Lanzando experimento:" $EXP
 # "LICENSE"
 #/mydata/opt/matlab/R2012b/bin/matlab -c /ABSOLUTE_PATH_TO_THE_LICENSE/license.dat -nodesktop < /ABSOLUTE_PATH_TO_YOUR_SCRIPTS_FOLDER/$EXP
 # NO LICENSE
-/mydata/opt/matlab/R2013b/bin/matlab -nojvm -nodesktop < /export/usuarios01/franrruiz87/pruebasPGAS/$EXP
+/mydata/opt/matlab/R2013b/bin/matlab -nojvm -nodesktop < /export/usuarios01/franrruiz87/simMIMO/$EXP

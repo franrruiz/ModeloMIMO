@@ -75,7 +75,7 @@
 %   +symbolMethod: Selects the method to infer the symbols. It can be 'ep', 'pgas', 'ffbs' or 'gibbs'.
 %   +sampleNoiseVar: Flag to indicate if the noise variace should be sampled.
 %   +sampleChannel: Flag to indicate if the channel coefficients (and Nt) should be sampled.
-%   +sampleVarH: Flag to indicate if the variance of the channel coefficients should be samples.
+%   +sampleVarH: Flag to indicate if the variance of the channel coefficients should be sampled.
 % 
 %% HYPERPARAMETERS
 % 

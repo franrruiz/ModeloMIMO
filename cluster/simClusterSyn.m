@@ -274,12 +274,12 @@ auxSample.Z = auxConstellation(auxIdx);
 auxSample.s2y = samples.s2y;
 [valnul auxSample.H] = sample_post_H(data,auxSample,hyper,param);
 
-[ADER(param.Niter+1) SER_ALL(param.Niter+1) SER_ACT(param.Niter+1) MMSE(param.Niter+1) vec_ord rot] = compute_error_rates(data,auxSample,hyper,param);
+[ADER(param.Niter+1) SER_ALL(param.Niter+1) SER_ACT(param.Niter+1) MMSE(param.Niter+1) vec_ord rot ADER_indiv SER_ALL_indiv SER_ACT_indiv MMSE_indiv] = compute_error_rates(data,auxSample,hyper,param);
 LLH(param.Niter+1) = compute_llh(data,auxSample,hyper,param);
 M_EST(param.Niter+1) = sum(sum(auxSample.seq~=0,2)>0);
 
 %% Save result
-save([saveFile '.mat'],'data','init','samples','ADER','SER_ALL','SER_ACT','MMSE','LLH','M_EST','samplesAll');
+save([saveFile '.mat'],'data','init','samples','ADER','SER_ALL','SER_ACT','MMSE','LLH','M_EST','samplesAll','*_indiv');
 
 % If successfully saved, detele previous temporary file
 if(exist([saveFile '/it' num2str(param.Niter) '.mat'],'file'))

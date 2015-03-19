@@ -12,6 +12,13 @@ for Nr=5:5:25
     end
 end
 
+for M=2:7
+    M
+    for itCluster = 1:50
+        addIndividualResultsToSim(1000,5,20,M,1,1,-3,10000,0,0,itCluster,11);
+    end
+end
+
 for Nt=2:2:10
     Nt
     for itCluster = 1:50
@@ -20,12 +27,7 @@ for Nt=2:2:10
 end
 
 
-for M=2:7
-    M
-    for itCluster = 1:50
-        addIndividualResultsToSim(1000,5,20,M,1,1,-3,10000,0,0,itCluster,11);
-    end
-end
+
 
 
 
