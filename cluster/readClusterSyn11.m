@@ -11,7 +11,7 @@ Niter =  10000;
 
 %%%%%%%%%%%%%%%
 pRemove = 0.0;
-plotToFile = 1;
+plotToFile = 0;
 flagPlotGenie = 0;
 flagRestrictiveItCluster = 0;
 thrSER = 0.1;
@@ -32,7 +32,7 @@ MAX_Nt = 10;
 % Sweep and hold variables:
   % L = 1:
   %sweep_var = 'lHead'; sweep_vec = 0:3:3; simId = 11; etiquetaX='Header Length'; lugar='NorthEast'; hold_var='onOffModel'; hold_vec=0:1;
-  sweep_var = 'SNR'; sweep_vec = -12:3:0; simId = 11; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
+  sweep_var = 'SNR'; sweep_vec = -9:3:0; simId = 11; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
   %sweep_var = 'Nt'; sweep_vec = 2:2:10; simId = 11; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
   %sweep_var = 'Nr'; sweep_vec = 5:5:20; simId = 11; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3;
   %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 11; etiquetaX='log_2|A|'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
@@ -42,6 +42,8 @@ MAX_Nt = 10;
   %sweep_var = 'M'; sweep_vec = 2:2:4; simId = 11; etiquetaX='log_2|A|'; lugar='NorthWest'; hold_var='L'; hold_vec=3; Ltrue=3;
   %sweep_var = 'SNR'; sweep_vec = -18:3:-12; simId = 11; etiquetaX='SNR (dB)'; lugar='NorthEast'; hold_var='L'; hold_vec=2;
 
+simId = 12;
+  
 marcadores = {'+','^','o'};
 estilos = {'-','--',':'};
 colores = {'m','b','k'};
@@ -193,6 +195,7 @@ ALL_SER_ALL_BCJR(idxItClusterNotFound,:,:,:) = [];
 ALL_SER_ACT_BCJR(idxItClusterNotFound,:,:,:) = [];
 ALL_MMSE_BCJR(idxItClusterNotFound,:,:,:) = [];
 
+ALL_RECOVERED(idxItClusterNotFound,:,:,:) = [];
 
 %% Remove pRemove% of the worst simulations
 Ntaux = Nt;
