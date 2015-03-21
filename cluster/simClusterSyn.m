@@ -57,7 +57,7 @@ param.gen.sparsityH = 0;
 
 if(simId<=10)
     data = generate_data_bursts(param);
-elseif(simId==11 || simId==12)
+elseif(simId==11 || simId==12 || simId==13)
     % If simId==11, load data from file
     load(['/export/clusterdata/franrruiz87/ModeloMIMO/data/syn/' num2str(simId) '/T' num2str(param.T) '_itCluster' num2str(itCluster) '.mat']);
     data.channel = channelGen(1:param.Nr,1:param.gen.Nt,1:max(param.gen.L_true));
@@ -106,11 +106,14 @@ param.infer.sampleNoiseVar = 0;
 param.infer.sampleChannel = 1;
 param.infer.sampleVarH = 1;
 param.infer.simulatedTempering = 0;
+param.infer.successiveNoiseLevel = 0;
 if(simId==12 && SNR>-12)
     param.infer.simulatedTempering = 1;
     param.temper.pKeep = 19/20;
     param.temper.pNext = 0.75;
     param.temper.s2yValues = 10.^(-linspace(-12,SNR,15)/10);   % (15 values from -12dB to SNR)
+elseif(simId==13)
+    param.infer.successiveNoiseLevel = 1;
 end
 param.bnp.betaSlice1 = 0.5;
 param.bnp.betaSlice2 = 5;
@@ -197,6 +200,51 @@ if(~flagRecovered)
 end
 for it=itInit+1:param.Niter
     %% Algorithm
+    
+    % Step 0a) Add artificial noise
+    if(param.infer.successiveNoiseLevel)
+        if(it==1)
+            data.artifNoise = randn(size(data.obs))+1i*randn(size(data.obs));
+            data.obsWithoutNoise = data.obs;
+            if(SNR>-12)
+                data.obs = data.obsWithoutNoise+sqrt(10^(1.2)-10^(-SNR/10))*data.artifNoise;
+            else
+                data.obs = data.obsWithoutNoise;
+            end
+        end
+        if(mod(it,1500)==0)
+            % Decrease the level
+            if(SNR>-9)
+                data.obs = data.obsWithoutNoise+sqrt(10^(1.2)-10^(-(SNR-3)/10))*data.artifNoise;
+            else
+                data.obs = data.obsWithoutNoise;
+            end
+        end
+        if(mod(it,3000)==0)
+            % Decrease the level
+            if(SNR>-6)
+                data.obs = data.obsWithoutNoise+sqrt(10^(1.2)-10^(-(SNR-6)/10))*data.artifNoise;
+            else
+                data.obs = data.obsWithoutNoise;
+            end
+        end
+        if(mod(it,4500)==0)
+            % Decrease the level
+            if(SNR>-3)
+                data.obs = data.obsWithoutNoise+sqrt(10^(1.2)-10^(-(SNR-9)/10))*data.artifNoise;
+            else
+                data.obs = data.obsWithoutNoise;
+            end
+        end
+        if(mod(it,6000)==0)
+            % Decrease the level
+            if(SNR>0)
+                data.obs = data.obsWithoutNoise+sqrt(10^(1.2)-10^(-(SNR-12)/10))*data.artifNoise;
+            else
+                data.obs = data.obsWithoutNoise;
+            end
+        end
+    end
     
     % Step 0) Simulated Tempering
     if(param.infer.simulatedTempering && (rand()>param.temper.pKeep))

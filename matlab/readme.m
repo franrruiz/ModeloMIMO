@@ -5,7 +5,9 @@
 %% DATA
 % 
 % data
-% -obs: Observations. Size = [Nr x T]
+% -obs: Observations (including artificial noise). Size = [Nr x T]
+% -obsWithoutNoise: Observations (without artificial noise). Size = [Nr x T]
+% -artifNoise: Artificial noise. Size = [Nr x T]
 % -channel: Channel coefficients. Size = [Nr x Nt x L]
 % -symbols: Transmitted symbols. Size = [Nt x T]
 % -seq: Transmitted indexes to symbols in the constellation. Size = [Nt x T]
@@ -77,6 +79,7 @@
 %   +sampleChannel: Flag to indicate if the channel coefficients (and Nt) should be sampled.
 %   +sampleVarH: Flag to indicate if the variance of the channel coefficients should be sampled.
 %   +simulatedTempering: Flag to indicate if simulated tempering should be used
+%   +successiveNoiseLevel: Flag to indicate if successive noise levels should be used during inference (by adding artificial noise)
 % -temper: Struct containing the configuration parameters for simulated tempering
 %   +pKeep: Probability of keeping the current temperature at each iteration
 %   +pNext: Probability of proposing to decrease the noise level
