@@ -217,7 +217,7 @@ for it=itInit+1:param.Niter
         if(mod(it,1500)==0)
             % Decrease the level
             if(SNR>-9)
-                data.obs = data.obsWithoutNoise+sqrt((10^(1.2)-10^(-(SNR-3)/10))/2)*data.artifNoise;
+                data.obs = data.obsWithoutNoise+sqrt((10^(0.9)-10^(-(SNR)/10))/2)*data.artifNoise;
                 samples.s2y = 10^(0.9);
             else
                 data.obs = data.obsWithoutNoise;
@@ -227,7 +227,7 @@ for it=itInit+1:param.Niter
         if(mod(it,3000)==0)
             % Decrease the level
             if(SNR>-6)
-                data.obs = data.obsWithoutNoise+sqrt((10^(1.2)-10^(-(SNR-6)/10))/2)*data.artifNoise;
+                data.obs = data.obsWithoutNoise+sqrt((10^(0.6)-10^(-(SNR)/10))/2)*data.artifNoise;
                 samples.s2y = 10^(0.6);
             else
                 data.obs = data.obsWithoutNoise;
@@ -237,7 +237,7 @@ for it=itInit+1:param.Niter
         if(mod(it,4500)==0)
             % Decrease the level
             if(SNR>-3)
-                data.obs = data.obsWithoutNoise+sqrt((10^(1.2)-10^(-(SNR-9)/10))/2)*data.artifNoise;
+                data.obs = data.obsWithoutNoise+sqrt((10^(0.3)-10^(-(SNR)/10))/2)*data.artifNoise;
                 samples.s2y = 10^(0.3);
             else
                 data.obs = data.obsWithoutNoise;
@@ -247,7 +247,7 @@ for it=itInit+1:param.Niter
         if(mod(it,6000)==0)
             % Decrease the level
             if(SNR>0)
-                data.obs = data.obsWithoutNoise+sqrt((10^(1.2)-10^(-(SNR-12)/10))/2)*data.artifNoise;
+                data.obs = data.obsWithoutNoise+sqrt((10^(0)-10^(-(SNR)/10))/2)*data.artifNoise;
                 samples.s2y = 10^(0);
             else
                 data.obs = data.obsWithoutNoise;
