@@ -106,14 +106,18 @@ param.infer.sampleNoiseVar = 0;
 param.infer.sampleChannel = 1;
 param.infer.sampleVarH = 1;
 param.infer.simulatedTempering = 0;
-param.infer.successiveNoiseLevel = 0;
+param.infer.addArtificialNoise = 0;
 if(simId==12 && SNR>-12)
     param.infer.simulatedTempering = 1;
     param.temper.pKeep = 19/20;
     param.temper.pNext = 0.75;
     param.temper.s2yValues = 10.^(-linspace(-12,SNR,15)/10);   % (15 values from -12dB to SNR)
 elseif(simId==13)
-    param.infer.successiveNoiseLevel = 1;
+    param.infer.addArtificialNoise = 1;
+    param.artifNoise.itCycle = 1500;
+    param.artifNoise.stepDB = 3;
+    param.artifNoise.iniSNR = -12;
+    param.artifNoise.finalSNR = SNR;
 end
 param.bnp.betaSlice1 = 0.5;
 param.bnp.betaSlice2 = 5;
@@ -202,61 +206,16 @@ for it=itInit+1:param.Niter
     %% Algorithm
     
     % Step 0a) Add artificial noise
-    if(param.infer.successiveNoiseLevel)
+    if(param.infer.addArtificialNoise)
         if(it==1)
-            data.artifNoise = randn(size(data.obs))+1i*randn(size(data.obs));
-            data.obsWithoutNoise = data.obs;
-            if(SNR>-12)
-                data.obs = data.obsWithoutNoise+sqrt((10^(1.2)-10^(-SNR/10))/2)*data.artifNoise;
-                samples.s2y = 10^(1.2);
-            else
-                data.obs = data.obsWithoutNoise;
-                samples.s2y = 10^(-SNR/10);
-            end
+            [data.obsWithoutNoise data.obs data.artifNoise samples.s2y] = artifNoise_init(data,samples,hyper,param);
         end
-        if(mod(it,1500)==0)
-            % Decrease the level
-            if(SNR>-9)
-                data.obs = data.obsWithoutNoise+sqrt((10^(0.9)-10^(-(SNR)/10))/2)*data.artifNoise;
-                samples.s2y = 10^(0.9);
-            else
-                data.obs = data.obsWithoutNoise;
-                samples.s2y = 10^(-SNR/10);
-            end
-        end
-        if(mod(it,3000)==0)
-            % Decrease the level
-            if(SNR>-6)
-                data.obs = data.obsWithoutNoise+sqrt((10^(0.6)-10^(-(SNR)/10))/2)*data.artifNoise;
-                samples.s2y = 10^(0.6);
-            else
-                data.obs = data.obsWithoutNoise;
-                samples.s2y = 10^(-SNR/10);
-            end
-        end
-        if(mod(it,4500)==0)
-            % Decrease the level
-            if(SNR>-3)
-                data.obs = data.obsWithoutNoise+sqrt((10^(0.3)-10^(-(SNR)/10))/2)*data.artifNoise;
-                samples.s2y = 10^(0.3);
-            else
-                data.obs = data.obsWithoutNoise;
-                samples.s2y = 10^(-SNR/10);
-            end
-        end
-        if(mod(it,6000)==0)
-            % Decrease the level
-            if(SNR>0)
-                data.obs = data.obsWithoutNoise+sqrt((10^(0)-10^(-(SNR)/10))/2)*data.artifNoise;
-                samples.s2y = 10^(0);
-            else
-                data.obs = data.obsWithoutNoise;
-                samples.s2y = 10^(-SNR/10);
-            end
+        if(mod(it,param.artifNoise.itCycle)==0)
+            [data.obs samples.s2y] = artifNoise_decr(data,samples,hyper,param);
         end
     end
     
-    % Step 0) Simulated Tempering
+    % Step 0b) Simulated Tempering
     if(param.infer.simulatedTempering && (rand()>param.temper.pKeep))
         samples.s2y = tempering_s2y(data,samples,hyper,param);
     else

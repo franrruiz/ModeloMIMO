@@ -79,7 +79,12 @@
 %   +sampleChannel: Flag to indicate if the channel coefficients (and Nt) should be sampled.
 %   +sampleVarH: Flag to indicate if the variance of the channel coefficients should be sampled.
 %   +simulatedTempering: Flag to indicate if simulated tempering should be used
-%   +successiveNoiseLevel: Flag to indicate if successive noise levels should be used during inference (by adding artificial noise)
+%   +addArtificialNoise: Flag to indicate if successive noise levels should be used during inference (by adding artificial noise)
+% -artifNoise: Struct containing the configuration parameters for the artificial noise
+%   +itCycle: How many iterations we should wait before decreasing the artificial noise variance
+%   +stepDB: How many dB's we should decrease the artificial noise variance
+%   +iniSNR: Initial SNR to be considered
+%   +finalSNR: Final SNR to be considered (i.e., the true one)
 % -temper: Struct containing the configuration parameters for simulated tempering
 %   +pKeep: Probability of keeping the current temperature at each iteration
 %   +pNext: Probability of proposing to decrease the noise level

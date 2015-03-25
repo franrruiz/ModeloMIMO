@@ -10,12 +10,12 @@ Nr = param.Nr;
 Nt = size(samples.Z,1);
 
 % Prior hyperparameters:
-tau0 = 2+1/hyper.kappa;
+tau0 = 2+1/(hyper.kappa^2);
 nu0 = (tau0-1)*hyper.s2h*exp(-hyper.lambda*(0:param.L-1));
 
 % Posterior parameters
-nuP = nu0+Nt*Nr;
-tauP = tau0+squeeze(sum(sum(abs(samples.H).^2,1),2)).';
+nuP = nu0+squeeze(sum(sum(abs(samples.H).^2,1),2)).';
+tauP = tau0+Nt*Nr;
 
 % Sample the variance from an Inverse-Gamma distribution
-s2H = 1./gamrnd(nuP,1./tauP);
+s2H = 1./gamrnd(tauP,1./nuP);

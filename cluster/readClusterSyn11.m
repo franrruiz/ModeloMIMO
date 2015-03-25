@@ -14,7 +14,7 @@ pRemove = 0.0;
 plotToFile = 0;
 flagPlotGenie = 0;
 flagRestrictiveItCluster = 0;
-thrSER = 0.1;
+thrSER = 0.05;
 %%%%%%%%%%%%%%%
 
 %Base scenario
@@ -32,7 +32,7 @@ MAX_Nt = 10;
 % Sweep and hold variables:
   % L = 1:
   %sweep_var = 'lHead'; sweep_vec = 0:3:3; simId = 11; etiquetaX='Header Length'; lugar='NorthEast'; hold_var='onOffModel'; hold_vec=0:1;
-  sweep_var = 'SNR'; sweep_vec = -9:3:-6; simId = 11; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
+  sweep_var = 'SNR'; sweep_vec = -9:3:0; simId = 11; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
   %sweep_var = 'Nt'; sweep_vec = 2:2:10; simId = 11; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
   %sweep_var = 'Nr'; sweep_vec = 5:5:20; simId = 11; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3;
   %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 11; etiquetaX='log_2|A|'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
@@ -228,8 +228,8 @@ elseif(strcmp(hold_var,'Nt'))
     idxGood_M = (ALL_MEST(:,end,:,:)==repmat(vecAux,[maxItCluster-length(idxItClusterNotFound),1,length(sweep_vec),1]));
     idxBad_M = (ALL_MEST(:,end,:,:)==repmat(vecAux,[maxItCluster-length(idxItClusterNotFound),1,length(sweep_vec),1]));
 else
-    idxGood_M = (ALL_MEST(:,end,:,:)==repmat(Ntaux,[maxItCluster-length(idxItClusterNotFound),1,length(sweep_vec),length(hold_vec)]));
-    idxBad_M = (ALL_MEST(:,end,:,:)==repmat(Ntaux,[maxItCluster-length(idxItClusterNotFound),1,length(sweep_vec),length(hold_vec)]));
+    idxGood_M = ((ALL_MEST(:,end,:,:)==repmat(Ntaux,[maxItCluster-length(idxItClusterNotFound),1,length(sweep_vec),length(hold_vec)])) & (ALL_SER_ALL(:,end,:,:)<=thrSER));
+    idxBad_M = ((ALL_MEST(:,end,:,:)==repmat(Ntaux,[maxItCluster-length(idxItClusterNotFound),1,length(sweep_vec),length(hold_vec)])) | (ALL_SER_ALL(:,end,:,:)>thrSER));
 end
 
 %% For fixed values of the hold variable, plot the metrics vs the sweep variable
