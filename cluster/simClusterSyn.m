@@ -35,11 +35,7 @@ param.header = ones(1,lHead);
 param.onOffModel = onOffModel;
 
 %% Generate data
-if(simId>=3)
-    noiseVar = 10^(-SNR/10);
-else
-    noiseVar = param.Nr*10^(-SNR/10);
-end
+noiseVar = 10^(-SNR/10);
 if(log2(M)==1)
     noiseVar = 2*noiseVar;
 end
@@ -57,8 +53,8 @@ param.gen.sparsityH = 0;
 
 if(simId<=10)
     data = generate_data_bursts(param);
-elseif(simId==11 || simId==12 || simId==13)
-    % If simId==11, load data from file
+elseif(simId==20 || simId==21)
+    % Load data from file
     load(['/export/clusterdata/franrruiz87/ModeloMIMO/data/syn/' num2str(simId) '/T' num2str(param.T) '_itCluster' num2str(itCluster) '.mat']);
     data.channel = channelGen(1:param.Nr,1:param.gen.Nt,1:max(param.gen.L_true));
     data.symbols = symbolsGen{log2(M)}(1:param.gen.Nt,1:param.T);
@@ -112,10 +108,16 @@ if(simId==12 && SNR>-12)
     param.temper.pKeep = 19/20;
     param.temper.pNext = 0.75;
     param.temper.s2yValues = 10.^(-linspace(-12,SNR,15)/10);   % (15 values from -12dB to SNR)
-elseif(simId==13)
+elseif(simId==20)
     param.infer.addArtificialNoise = 1;
     param.artifNoise.itCycle = 1500;
     param.artifNoise.stepDB = 3;
+    param.artifNoise.iniSNR = -12;
+    param.artifNoise.finalSNR = SNR;
+elseif(simId==21)
+    param.infer.addArtificialNoise = 1;
+    param.artifNoise.itCycle = 1;
+    param.artifNoise.stepDB = 12/6000;
     param.artifNoise.iniSNR = -12;
     param.artifNoise.finalSNR = SNR;
 end
@@ -209,8 +211,7 @@ for it=itInit+1:param.Niter
     if(param.infer.addArtificialNoise)
         if(it==1)
             [data.obsWithoutNoise data.obs data.artifNoise samples.s2y] = artifNoise_init(data,samples,hyper,param);
-        end
-        if(mod(it,param.artifNoise.itCycle)==0)
+        elseif(mod(it,param.artifNoise.itCycle)==0)
             [data.obs samples.s2y] = artifNoise_decr(data,samples,hyper,param);
         end
     end
