@@ -42,8 +42,8 @@ MAX_Nt = 10;
   %sweep_var = 'M'; sweep_vec = 2:2:4; simId = 11; etiquetaX='log_2|A|'; lugar='NorthWest'; hold_var='L'; hold_vec=3; Ltrue=3;
   %sweep_var = 'SNR'; sweep_vec = -18:3:-12; simId = 11; etiquetaX='SNR (dB)'; lugar='NorthEast'; hold_var='L'; hold_vec=2;
 
-simId = 20; Niter = 15000;
-%simId = 21; Niter = 10000;
+%simId = 20; Niter = 15000;
+simId = 21; Niter = 10000;
   
 marcadores = {'+','^','o'};
 estilos = {'-','--',':'};
@@ -229,8 +229,8 @@ elseif(strcmp(hold_var,'Nt'))
     idxGood_M = (ALL_MEST(:,end,:,:)==repmat(vecAux,[maxItCluster-length(idxItClusterNotFound),1,length(sweep_vec),1]));
     idxBad_M = (ALL_MEST(:,end,:,:)==repmat(vecAux,[maxItCluster-length(idxItClusterNotFound),1,length(sweep_vec),1]));
 else
-    idxGood_M = ((ALL_MEST(:,end,:,:)==repmat(Ntaux,[maxItCluster-length(idxItClusterNotFound),1,length(sweep_vec),length(hold_vec)])) & (ALL_SER_ALL(:,end,:,:)<=thrSER));
-    idxBad_M = ((ALL_MEST(:,end,:,:)==repmat(Ntaux,[maxItCluster-length(idxItClusterNotFound),1,length(sweep_vec),length(hold_vec)])) | (ALL_SER_ALL(:,end,:,:)>thrSER));
+    idxGood_M = ((ALL_MEST(:,end,:,:)==repmat(Ntaux,[maxItCluster-length(idxItClusterNotFound),1,length(sweep_vec),length(hold_vec)])));
+    idxBad_M = ((ALL_MEST(:,end,:,:)==repmat(Ntaux,[maxItCluster-length(idxItClusterNotFound),1,length(sweep_vec),length(hold_vec)])));
 end
 
 %% For fixed values of the hold variable, plot the metrics vs the sweep variable
@@ -292,8 +292,8 @@ for holdV=hold_vec
             auxIdxB = (sum(idxGood_M(:,:,:,idxHold),3)~=length(sweep_vec));
             idxBad = find(squeeze(auxIdxB));
         else
-            idxGood = find((ALL_MEST(:,end,idxSweep,idxHold)==Ntaux) & (ALL_SER_ALL(:,end,idxSweep,idxHold)<=thrSER));
-            idxBad = find((ALL_MEST(:,end,idxSweep,idxHold)~=Ntaux) | (ALL_SER_ALL(:,end,idxSweep,idxHold)>thrSER));
+            idxGood = find((ALL_MEST(:,end,idxSweep,idxHold)==Ntaux));
+            idxBad = find((ALL_MEST(:,end,idxSweep,idxHold)~=Ntaux));
         end
         
         avgADER(idxSweep) = mean(ALL_ADER(idxGood,end,idxSweep,idxHold));
