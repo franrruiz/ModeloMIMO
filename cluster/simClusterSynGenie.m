@@ -18,10 +18,13 @@ saveFolder = ['/export/clusterdata/franrruiz87/ModeloMIMO/results/synthetic/' nu
 saveFile = [saveFolder '/itCluster' num2str(itCluster)];
 saveTmpFolder = [saveFile '/pgas'];
 
+% Exit if BNP+PGAS has not finished yet
 if(~exist([saveFile '.mat'],'file'))
     return;
 end
-load([saveFile '.mat']);
+% Load data
+load([saveFile '.mat'],'data','ADER_PGAS2');
+% Exit if this simulation already run
 if(exist('ADER_PGAS2','var'))
     return;
 end
@@ -45,11 +48,7 @@ param.header = [];
 param.onOffModel = 0;
 
 %% Choose noiseVar
-if(simId>=3)
-    noiseVar = 10^(-SNR/10);
-else
-    noiseVar = param.Nr*10^(-SNR/10);
-end
+noiseVar = 10^(-SNR/10);
 if(log2(M)==1)
     noiseVar = 2*noiseVar;
 end
@@ -57,12 +56,30 @@ end
 %% Check if there are temporary files to be loaded
 flagRecovered = 0;
 itInit = 0;
-for it=param.saveCycle:param.saveCycle:param.Niter
+it = param.saveCycle;
+while(it<=param.Niter)
     if(exist([saveTmpFolder '/it' num2str(it) '.mat'],'file'))
-        load([saveTmpFolder '/it' num2str(it) '.mat']);
-        itInit = it;
-        flagRecovered = 1;
+        try
+            % Try to load the temporary file
+            load([saveTmpFolder '/it' num2str(it) '.mat']);
+            % If success, then save current iteration and activate flag
+            itInit = it;
+            flagRecovered = 1;
+            % Delete previous file (it-saveCycle) in order not to exceed disk quota
+            if(exist([saveTmpFolder '/it' num2str(it-param.saveCycle) '.mat'],'file'))
+                delete([saveTmpFolder '/it' num2str(it-param.saveCycle) '.mat']);
+            end
+        catch e
+            % If the file exists but it is corrupt
+            % (it happens sometimes when using the cluster machines)
+            delete([saveTmpFolder '/it' num2str(it) '.mat']);
+            % Set it so that next iteration is it-param.saveCycle
+            it = it-2*param.saveCycle;
+            itInit = 0;
+            flagRecovered = 0;
+        end
     end
+    it = it+param.saveCycle;
 end
 
 %% Configuration parameters for BCJR, PGAS, EP, FFBS and collapsed Gibbs
@@ -84,6 +101,8 @@ param.ffbs.Niter = 1;
 param.infer.sampleNoiseVar = 0;
 param.infer.sampleChannel = 0;
 param.infer.sampleVarH = 0;
+param.infer.simulatedTempering = 0;
+param.infer.addArtificialNoise = 0;
 param.bnp.betaSlice1 = 0.5;
 param.bnp.betaSlice2 = 5;
 param.bnp.maxMnew = 15;
@@ -156,24 +175,31 @@ for it=itInit+1:param.Niter
         end
     end
 end
-% Performance of PGAS
+
+%% Performance of PGAS
 [valnul auxIdx] = max(ZauxPGAS,[],3);
 auxConstellation = [0 param.constellation];
 auxSamplePGAS.seq = auxIdx-1;
 auxSamplePGAS.Z = auxConstellation(auxIdx);
-[ADER_PGAS2 SER_ALL_PGAS2 SER_ACT_PGAS2 MMSE_PGAS2 vec_ord rot] = compute_error_rates(data,auxSamplePGAS,hyper,param,0,0);
+[ADER_PGAS2 SER_ALL_PGAS2 SER_ACT_PGAS2 MMSE_PGAS2 vec_ord rot ADER_PGAS2_indiv SER_ALL_PGAS2_indiv SER_ACT_PGAS2_indiv MMSE_PGAS2_indiv] = ...
+    compute_error_rates(data,auxSamplePGAS,hyper,param,0,0);
 
-% Performance of FFBS
+%% Performance of FFBS
 ADER_FFBS2 = NaN;
 SER_ALL_FFBS2 = NaN;
 SER_ACT_FFBS2 = NaN;
 MMSE_FFBS2 = NaN;
+ADER_FFBS2_indiv = NaN;
+SER_ALL_FFBS2_indiv = NaN;
+SER_ACT_FFBS2_indiv = NaN;
+MMSE_FFBS2_indiv = NaN;
 if((length(param.constellation)+1)^(2*Ltrue)<1e6)
     [valnul auxIdx] = max(ZauxFFBS,[],3);
     auxConstellation = [0 param.constellation];
     auxSampleFFBS.seq = auxIdx-1;
     auxSampleFFBS.Z = auxConstellation(auxIdx);
-    [ADER_FFBS2 SER_ALL_FFBS2 SER_ACT_FFBS2 MMSE_FFBS2 vec_ord rot] = compute_error_rates(data,auxSampleFFBS,hyper,param,0,0);
+    [ADER_FFBS2 SER_ALL_FFBS2 SER_ACT_FFBS2 MMSE_FFBS2 vec_ord rot ADER_FFBS2_indiv SER_ALL_FFBS2_indiv SER_ACT_FFBS2_indiv MMSE_FFBS2_indiv] = ...
+        compute_error_rates(data,auxSampleFFBS,hyper,param,0,0);
 end
 
 %% Inference using BCJR
@@ -181,7 +207,11 @@ ADER_BCJR2 = NaN;
 SER_ALL_BCJR2 = NaN;
 SER_ACT_BCJR2 = NaN;
 MMSE_BCJR2 = NaN;
-if((length(auxConstellation)^(2*param.L*param.bnp.Mini)<1e6)&&(param.bnp.Mini<=4))
+ADER_BCJR2_indiv = NaN;
+SER_ALL_BCJR2_indiv = NaN;
+SER_ACT_BCJR2_indiv = NaN;
+MMSE_BCJR2_indiv = NaN;
+if((length(auxConstellation)^(2*param.L*param.bnp.Mini)<1e6))
     auxSample = samplesPGAS;
     [auxSample.Z qt_red Simb_red] = bcjr_main(data,samplesPGAS,hyper,param);
     auxSample.seq = zeros(size(auxSample.Z));
@@ -189,13 +219,15 @@ if((length(auxConstellation)^(2*param.L*param.bnp.Mini)<1e6)&&(param.bnp.Mini<=4
         idx = (abs(auxSample.Z-auxConstellation(q))<min(abs(param.constellation))/10);
         auxSample.seq(idx) = q-1;
     end
-    [ADER_BCJR2 SER_ALL_BCJR2 SER_ACT_BCJR2 MMSE_BCJR2 vec_ord rot] = compute_error_rates(data,auxSample,hyper,param,0,0);
+    [ADER_BCJR2 SER_ALL_BCJR2 SER_ACT_BCJR2 MMSE_BCJR2 vec_ord rot ADER_BCJR2_indiv SER_ALL_BCJR2_indiv SER_ACT_BCJR2_indiv MMSE_BCJR2_indiv] = ...
+        compute_error_rates(data,auxSample,hyper,param,0,0);
 end
 
 %% Save results
 save([saveFile '.mat'],'ADER_PGAS2','SER_ALL_PGAS2','SER_ACT_PGAS2','MMSE_PGAS2',...
                        'ADER_FFBS2','SER_ALL_FFBS2','SER_ACT_FFBS2','MMSE_FFBS2',...
                        'ADER_BCJR2','SER_ALL_BCJR2','SER_ACT_BCJR2','MMSE_BCJR2',...
+                       '*2_indiv',...
                        '-append');
                    
 %% If successfully saved, detele previous temporary file
