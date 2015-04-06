@@ -8,6 +8,9 @@ function simClusterSynGenie(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,itClust
 % Furthermore, initially it returned 4000 samples for the PGAS (40%), now it
 % returns only 2000 (20%)
 % 
+% More importantly, variables ending in "2" had been computed in a wrong
+% way, they should be ignored and replaced with variables ending in "3"
+% 
 
 addpath(genpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab'));
 
@@ -23,9 +26,9 @@ if(~exist([saveFile '.mat'],'file'))
     return;
 end
 % Load data
-load([saveFile '.mat'],'data','ADER_PGAS2');
+load([saveFile '.mat'],'data','ADER_PGAS3');
 % Exit if this simulation already run
-if(exist('ADER_PGAS2','var'))
+if(exist('ADER_PGAS3','var'))
     return;
 end
 if(~isdir(saveTmpFolder))
@@ -181,36 +184,36 @@ end
 auxConstellation = [0 param.constellation];
 auxSamplePGAS.seq = auxIdx-1;
 auxSamplePGAS.Z = auxConstellation(auxIdx);
-[ADER_PGAS2 SER_ALL_PGAS2 SER_ACT_PGAS2 MMSE_PGAS2 vec_ord rot ADER_PGAS2_indiv SER_ALL_PGAS2_indiv SER_ACT_PGAS2_indiv MMSE_PGAS2_indiv] = ...
-    compute_error_rates(data,auxSamplePGAS,hyper,param,0,0);
+[ADER_PGAS3 SER_ALL_PGAS3 SER_ACT_PGAS3 MMSE_PGAS3 vec_ord rot ADER_PGAS3_indiv SER_ALL_PGAS3_indiv SER_ACT_PGAS3_indiv MMSE_PGAS3_indiv] = ...
+    compute_error_rates_genie(data,auxSamplePGAS,hyper,param);
 
 %% Performance of FFBS
-ADER_FFBS2 = NaN;
-SER_ALL_FFBS2 = NaN;
-SER_ACT_FFBS2 = NaN;
-MMSE_FFBS2 = NaN;
-ADER_FFBS2_indiv = NaN;
-SER_ALL_FFBS2_indiv = NaN;
-SER_ACT_FFBS2_indiv = NaN;
-MMSE_FFBS2_indiv = NaN;
+ADER_FFBS3 = NaN;
+SER_ALL_FFBS3 = NaN;
+SER_ACT_FFBS3 = NaN;
+MMSE_FFBS3 = NaN;
+ADER_FFBS3_indiv = NaN;
+SER_ALL_FFBS3_indiv = NaN;
+SER_ACT_FFBS3_indiv = NaN;
+MMSE_FFBS3_indiv = NaN;
 if((length(param.constellation)+1)^(2*Ltrue)<1e6)
     [valnul auxIdx] = max(ZauxFFBS,[],3);
     auxConstellation = [0 param.constellation];
     auxSampleFFBS.seq = auxIdx-1;
     auxSampleFFBS.Z = auxConstellation(auxIdx);
-    [ADER_FFBS2 SER_ALL_FFBS2 SER_ACT_FFBS2 MMSE_FFBS2 vec_ord rot ADER_FFBS2_indiv SER_ALL_FFBS2_indiv SER_ACT_FFBS2_indiv MMSE_FFBS2_indiv] = ...
-        compute_error_rates(data,auxSampleFFBS,hyper,param,0,0);
+    [ADER_FFBS3 SER_ALL_FFBS3 SER_ACT_FFBS3 MMSE_FFBS3 vec_ord rot ADER_FFBS3_indiv SER_ALL_FFBS3_indiv SER_ACT_FFBS3_indiv MMSE_FFBS3_indiv] = ...
+        compute_error_rates_genie(data,auxSampleFFBS,hyper,param);
 end
 
 %% Inference using BCJR
-ADER_BCJR2 = NaN;
-SER_ALL_BCJR2 = NaN;
-SER_ACT_BCJR2 = NaN;
-MMSE_BCJR2 = NaN;
-ADER_BCJR2_indiv = NaN;
-SER_ALL_BCJR2_indiv = NaN;
-SER_ACT_BCJR2_indiv = NaN;
-MMSE_BCJR2_indiv = NaN;
+ADER_BCJR3 = NaN;
+SER_ALL_BCJR3 = NaN;
+SER_ACT_BCJR3 = NaN;
+MMSE_BCJR3 = NaN;
+ADER_BCJR3_indiv = NaN;
+SER_ALL_BCJR3_indiv = NaN;
+SER_ACT_BCJR3_indiv = NaN;
+MMSE_BCJR3_indiv = NaN;
 if((length(auxConstellation)^(2*param.L*param.bnp.Mini)<1e6))
     auxSample = samplesPGAS;
     [auxSample.Z qt_red Simb_red] = bcjr_main(data,samplesPGAS,hyper,param);
@@ -219,15 +222,15 @@ if((length(auxConstellation)^(2*param.L*param.bnp.Mini)<1e6))
         idx = (abs(auxSample.Z-auxConstellation(q))<min(abs(param.constellation))/10);
         auxSample.seq(idx) = q-1;
     end
-    [ADER_BCJR2 SER_ALL_BCJR2 SER_ACT_BCJR2 MMSE_BCJR2 vec_ord rot ADER_BCJR2_indiv SER_ALL_BCJR2_indiv SER_ACT_BCJR2_indiv MMSE_BCJR2_indiv] = ...
-        compute_error_rates(data,auxSample,hyper,param,0,0);
+    [ADER_BCJR3 SER_ALL_BCJR3 SER_ACT_BCJR3 MMSE_BCJR3 vec_ord rot ADER_BCJR3_indiv SER_ALL_BCJR3_indiv SER_ACT_BCJR3_indiv MMSE_BCJR3_indiv] = ...
+        compute_error_rates_genie(data,auxSample,hyper,param);
 end
 
 %% Save results
-save([saveFile '.mat'],'ADER_PGAS2','SER_ALL_PGAS2','SER_ACT_PGAS2','MMSE_PGAS2',...
-                       'ADER_FFBS2','SER_ALL_FFBS2','SER_ACT_FFBS2','MMSE_FFBS2',...
-                       'ADER_BCJR2','SER_ALL_BCJR2','SER_ACT_BCJR2','MMSE_BCJR2',...
-                       '*2_indiv',...
+save([saveFile '.mat'],'ADER_PGAS3','SER_ALL_PGAS3','SER_ACT_PGAS3','MMSE_PGAS3',...
+                       'ADER_FFBS3','SER_ALL_FFBS3','SER_ACT_FFBS3','MMSE_FFBS3',...
+                       'ADER_BCJR3','SER_ALL_BCJR3','SER_ACT_BCJR3','MMSE_BCJR3',...
+                       '*3_indiv',...
                        '-append');
                    
 %% If successfully saved, detele previous temporary file
