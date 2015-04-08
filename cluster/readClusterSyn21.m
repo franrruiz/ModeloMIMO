@@ -10,9 +10,8 @@ Niter =  10000;
 
 
 %%%%%%%%%%%%%%%
-pRemove = 0.0;
 plotToFile = 0;
-flagPlotGenie = 0;
+flagPlotGenie = 1;
 flagRestrictiveItCluster = 0;
 thrSER = 0.05;
 %%%%%%%%%%%%%%%
@@ -32,9 +31,9 @@ MAX_Nt = 10;
 % Sweep and hold variables:
   % L = 1:
   %sweep_var = 'lHead'; sweep_vec = 0:3:3; simId = 21; etiquetaX='Header Length'; lugar='NorthEast'; hold_var='onOffModel'; hold_vec=0:1;
-  sweep_var = 'SNR'; sweep_vec = -15:3:3; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
+  %sweep_var = 'SNR'; sweep_vec = -15:3:-3; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
   %sweep_var = 'Nt'; sweep_vec = 2:2:10; simId = 21; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
-  %sweep_var = 'Nr'; sweep_vec = 5:5:20; simId = 21; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3;
+  sweep_var = 'Nr'; sweep_vec = 5:5:25; simId = 21; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3;
   %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 21; etiquetaX='log_2|A|'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
 
   % L = 3:
@@ -42,10 +41,10 @@ MAX_Nt = 10;
   %sweep_var = 'M'; sweep_vec = 2:2:4; simId = 21; etiquetaX='log_2|A|'; lugar='NorthWest'; hold_var='L'; hold_vec=3; Ltrue=3;
   %sweep_var = 'SNR'; sweep_vec = -18:3:-12; simId = 21; etiquetaX='SNR (dB)'; lugar='NorthEast'; hold_var='L'; hold_vec=2;
   
-marcadores = {'+','^','o'};
-estilos = {'-','--',':'};
-colores = {'m','b','k'};
-leyenda = {'iFHMM','PGAS','BCJR'};
+marcadores = {'+','^','o','x'};
+estilos = {'-','--',':','-.'};
+colores = {'m','b','k','r'};
+leyenda = {'IFFSM','PGAS','BCJR','FFBS'};
 anchoSm = 4; altoSm = 3;  % Before: 3,2
 anchoLar = 5; altoLar = 3.5;
 
@@ -66,6 +65,10 @@ ALL_ADER_BCJR = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
 ALL_SER_ALL_BCJR = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
 ALL_SER_ACT_BCJR = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
 ALL_MMSE_BCJR = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
+ALL_ADER_FFBS = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
+ALL_SER_ALL_FFBS = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
+ALL_SER_ACT_FFBS = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
+ALL_MMSE_FFBS = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
 
 %% Load results
 idxItClusterNotFound = [];
@@ -141,8 +144,8 @@ for sweepV=sweep_vec
                         '/itCluster' num2str(itCluster) '.mat'];
                     
             if(exist(saveFile,'file'))
-                clear ADER_PGAS2 ADER_BCJR2
-                load(saveFile,'ADER','MMSE','SER_ACT','SER_ALL','LLH','M_EST','*_indiv','*_PGAS2','*_BCJR2');
+                clear ADER_PGAS3 ADER_BCJR3 ADER_FFBS3
+                load(saveFile,'ADER','MMSE','SER_ACT','SER_ALL','LLH','M_EST','*_indiv','*_PGAS3','*_BCJR3','*_FFBS3');
                 ALL_ADER(itCluster,:,idxSweep,idxHold) = ADER;
                 ALL_MMSE(itCluster,:,idxSweep,idxHold) = MMSE;
                 ALL_LLH(itCluster,:,idxSweep,idxHold) = LLH;
@@ -151,17 +154,23 @@ for sweepV=sweep_vec
                 ALL_MEST(itCluster,:,idxSweep,idxHold) = M_EST;
                 ALL_RECOVERED(itCluster,1,idxSweep,idxHold) = sum(SER_ALL_indiv<thrSER);
                 
-                if(exist('ADER_PGAS2','var'))
-                    ALL_ADER_PGAS(itCluster,1,idxSweep,idxHold) = ADER_PGAS2;
-                    ALL_SER_ALL_PGAS(itCluster,1,idxSweep,idxHold) = SER_ALL_PGAS2;
-                    ALL_SER_ACT_PGAS(itCluster,1,idxSweep,idxHold) = SER_ACT_PGAS2;
-                    ALL_MMSE_PGAS(itCluster,1,idxSweep,idxHold) = MMSE_PGAS2;
+                if(exist('ADER_PGAS3','var'))
+                    ALL_ADER_PGAS(itCluster,1,idxSweep,idxHold) = ADER_PGAS3;
+                    ALL_SER_ALL_PGAS(itCluster,1,idxSweep,idxHold) = SER_ALL_PGAS3;
+                    ALL_SER_ACT_PGAS(itCluster,1,idxSweep,idxHold) = SER_ACT_PGAS3;
+                    ALL_MMSE_PGAS(itCluster,1,idxSweep,idxHold) = MMSE_PGAS3;
                 end
-                if(exist('ADER_BCJR2','var'))
-                    ALL_ADER_BCJR(itCluster,1,idxSweep,idxHold) = ADER_BCJR2;
-                    ALL_SER_ALL_BCJR(itCluster,1,idxSweep,idxHold) = SER_ALL_BCJR2;
-                    ALL_SER_ACT_BCJR(itCluster,1,idxSweep,idxHold) = SER_ACT_BCJR2;
-                    ALL_MMSE_BCJR(itCluster,1,idxSweep,idxHold) = MMSE_BCJR2;
+                if(exist('ADER_BCJR3','var'))
+                    ALL_ADER_BCJR(itCluster,1,idxSweep,idxHold) = ADER_BCJR3;
+                    ALL_SER_ALL_BCJR(itCluster,1,idxSweep,idxHold) = SER_ALL_BCJR3;
+                    ALL_SER_ACT_BCJR(itCluster,1,idxSweep,idxHold) = SER_ACT_BCJR3;
+                    ALL_MMSE_BCJR(itCluster,1,idxSweep,idxHold) = MMSE_BCJR3;
+                end
+                if(exist('ADER_FFBS3','var'))
+                    ALL_ADER_FFBS(itCluster,1,idxSweep,idxHold) = ADER_FFBS3;
+                    ALL_SER_ALL_FFBS(itCluster,1,idxSweep,idxHold) = SER_ALL_FFBS3;
+                    ALL_SER_ACT_FFBS(itCluster,1,idxSweep,idxHold) = SER_ACT_FFBS3;
+                    ALL_MMSE_FFBS(itCluster,1,idxSweep,idxHold) = MMSE_FFBS3;
                 end
             else
                 idxItClusterNotFound = unique([idxItClusterNotFound itCluster]);
@@ -193,25 +202,12 @@ ALL_SER_ALL_BCJR(idxItClusterNotFound,:,:,:) = [];
 ALL_SER_ACT_BCJR(idxItClusterNotFound,:,:,:) = [];
 ALL_MMSE_BCJR(idxItClusterNotFound,:,:,:) = [];
 
-ALL_RECOVERED(idxItClusterNotFound,:,:,:) = [];
+ALL_ADER_FFBS(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ALL_FFBS(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ACT_FFBS(idxItClusterNotFound,:,:,:) = [];
+ALL_MMSE_FFBS(idxItClusterNotFound,:,:,:) = [];
 
-%% Remove pRemove% of the worst simulations
-Ntaux = Nt;
-for idxSweep=1:length(sweep_vec)
-    if(strcmp(sweep_var,'Nt'))
-        Ntaux = sweep_vec(idxSweep);
-    end
-    for idxHold=1:length(hold_vec)
-        if(strcmp(hold_var,'Nt'))
-            Ntaux = hold_vec(idxHold);
-        end
-        
-        idxGood = find(ALL_MEST(:,end,idxSweep,idxHold)==Ntaux);
-        howManyToRm = round(pRemove*length(idxGood));
-        [valnul idxOrd] = sort(ALL_MMSE(idxGood,end,idxSweep,idxHold),'descend');
-        ALL_MEST(idxGood(idxOrd(1:howManyToRm)),end,idxSweep,idxHold) = -ALL_MEST(idxGood(idxOrd(1:howManyToRm)),end,idxSweep,idxHold);
-    end
-end
+ALL_RECOVERED(idxItClusterNotFound,:,:,:) = [];
 
 %% Build idxGood_M, idxBad_M
 Ntaux = Nt;
@@ -276,6 +272,13 @@ for holdV=hold_vec
     stdSER_ACT_BCJR = zeros(1,length(sweep_vec));
     stdSER_ALL_BCJR = zeros(1,length(sweep_vec));
     
+    avgADER_FFBS = zeros(1,length(sweep_vec));
+    avgSER_ACT_FFBS = zeros(1,length(sweep_vec));
+    avgSER_ALL_FFBS = zeros(1,length(sweep_vec));
+    stdADER_FFBS = zeros(1,length(sweep_vec));
+    stdSER_ACT_FFBS = zeros(1,length(sweep_vec));
+    stdSER_ALL_FFBS = zeros(1,length(sweep_vec));
+    
     for sweepV=sweep_vec
         idxSweep = find(sweep_vec==sweepV);
         
@@ -318,6 +321,13 @@ for holdV=hold_vec
         stdSER_ACT_BCJR(idxSweep) = std(ALL_SER_ACT_BCJR(idxGood,1,idxSweep,idxHold));
         avgSER_ALL_BCJR(idxSweep) = mean(ALL_SER_ALL_BCJR(idxGood,1,idxSweep,idxHold));
         stdSER_ALL_BCJR(idxSweep) = std(ALL_SER_ALL_BCJR(idxGood,1,idxSweep,idxHold));
+        
+        avgADER_FFBS(idxSweep) = mean(ALL_ADER_FFBS(idxGood,1,idxSweep,idxHold));
+        stdADER_FFBS(idxSweep) = std(ALL_ADER_FFBS(idxGood,1,idxSweep,idxHold));
+        avgSER_ACT_FFBS(idxSweep) = mean(ALL_SER_ACT_FFBS(idxGood,1,idxSweep,idxHold));
+        stdSER_ACT_FFBS(idxSweep) = std(ALL_SER_ACT_FFBS(idxGood,1,idxSweep,idxHold));
+        avgSER_ALL_FFBS(idxSweep) = mean(ALL_SER_ALL_FFBS(idxGood,1,idxSweep,idxHold));
+        stdSER_ALL_FFBS(idxSweep) = std(ALL_SER_ALL_FFBS(idxGood,1,idxSweep,idxHold));
     end
     
     % Plot ADER
@@ -339,25 +349,50 @@ for holdV=hold_vec
         set(h,'Visible','off');
     end
     idxBCJR = [];
+    idxFFBS = [];
     if(strcmp(sweep_var,'Nt'))
-        idxBCJR = find(((1+2^Maux).^(2*Laux*sweep_vec)<1e6)&(sweep_vec<=4));
+        idxBCJR = find((1+2^Maux).^(2*Laux*sweep_vec)<1e6);
+        if((1+2^Maux)^(2*Laux)<1e6)
+            idxFFBS = 1:length(sweep_vec);
+        end
     elseif(strcmp(sweep_var,'M'))
-        idxBCJR = find(((1+2.^sweep_vec).^(2*Laux*Ntaux)<1e6)&(Ntaux<=4));
+        idxBCJR = find((1+2.^sweep_vec).^(2*Laux*Ntaux)<1e6);
+        idxFFBS = find((1+2.^sweep_vec).^(2*Laux)<1e6);
     elseif(strcmp(sweep_var,'L'))
-        idxBCJR = find(((1+2^Maux).^(2*sweep_vec*Ntaux)<1e6)&(Ntaux<=4));
+        idxBCJR = find((1+2^Maux).^(2*sweep_vec*Ntaux)<1e6);
+        idxFFBS = find((1+2^Maux).^(2*sweep_vec)<1e6);
     else
-        idxBCJR = find(((1+2^Maux)^(2*Laux*Ntaux)<1e6)&(Ntaux<=4));
+        if((1+2^Maux)^(2*Laux*Ntaux)<1e6)
+            idxBCJR = 1:length(sweep_vec);
+        end
+        if((1+2^Maux)^(2*Laux)<1e6)
+            idxFFBS = 1:length(sweep_vec);
+        end
     end
     if(~isempty(idxBCJR))
         hold on;
         h = plot(sweep_vec(idxBCJR),avgADER_BCJR(idxBCJR),'Marker',marcadores{3},'LineStyle',estilos{3},'Color',colores{3});
         if(~flagPlotGenie)
             set(h,'Visible','off');
-        else
-            legend(leyenda,'Location',lugar);
         end
-    elseif(flagPlotGenie)
-        legend(leyenda(1:2),'Location',lugar);
+    end
+    if(~isempty(idxFFBS))
+        hold on;
+        h = plot(sweep_vec(idxFFBS),avgADER_FFBS(idxFFBS),'Marker',marcadores{4},'LineStyle',estilos{4},'Color',colores{4});
+        if(~flagPlotGenie)
+            set(h,'Visible','off');
+        end
+    end
+    if(flagPlotGenie)
+        if(isempty(idxBCJR) && ~isempty(idxFFBS))
+            legend(leyenda([1 2 4]),'Location',lugar);
+        elseif(~isempty(idxBCJR) && ~isempty(idxFFBS))
+            legend(leyenda([1 2 3 4]),'Location',lugar);
+        elseif(~isempty(idxBCJR) && isempty(idxFFBS))
+            legend(leyenda([1 2 3]),'Location',lugar);
+        else
+            legend(leyenda([1 2]),'Location',lugar);
+        end
     end
     if(plotToFile)
         figurapdf(anchoSm,altoSm);
@@ -384,26 +419,30 @@ for holdV=hold_vec
     if(~flagPlotGenie)
         set(h,'Visible','off');
     end
-    idxBCJR = [];
-    if(strcmp(sweep_var,'Nt'))
-        idxBCJR = find(((1+2^Maux).^(2*Laux*sweep_vec)<1e6)&(sweep_vec<=4));
-    elseif(strcmp(sweep_var,'M'))
-        idxBCJR = find(((1+2.^sweep_vec).^(2*Laux*Ntaux)<1e6)&(Ntaux<=4));
-    elseif(strcmp(sweep_var,'L'))
-        idxBCJR = find(((1+2^Maux).^(2*sweep_vec*Ntaux)<1e6)&(Ntaux<=4));
-    else
-        idxBCJR = find(((1+2^Maux)^(2*Laux*Ntaux)<1e6)&(Ntaux<=4));
-    end
     if(~isempty(idxBCJR))
         hold on;
         h = plot(sweep_vec(idxBCJR),avgSER_ALL_BCJR(idxBCJR),'Marker',marcadores{3},'LineStyle',estilos{3},'Color',colores{3});
         if(~flagPlotGenie)
             set(h,'Visible','off');
-        else
-            legend(leyenda,'Location',lugar);
         end
-    elseif(flagPlotGenie)
-        legend(leyenda(1:2),'Location',lugar);
+    end
+    if(~isempty(idxFFBS))
+        hold on;
+        h = plot(sweep_vec(idxFFBS),avgSER_ALL_FFBS(idxFFBS),'Marker',marcadores{4},'LineStyle',estilos{4},'Color',colores{4});
+        if(~flagPlotGenie)
+            set(h,'Visible','off');
+        end
+    end
+    if(flagPlotGenie)
+        if(isempty(idxBCJR) && ~isempty(idxFFBS))
+            legend(leyenda([1 2 4]),'Location',lugar);
+        elseif(~isempty(idxBCJR) && ~isempty(idxFFBS))
+            legend(leyenda([1 2 3 4]),'Location',lugar);
+        elseif(~isempty(idxBCJR) && isempty(idxFFBS))
+            legend(leyenda([1 2 3]),'Location',lugar);
+        else
+            legend(leyenda([1 2]),'Location',lugar);
+        end
     end
     if(plotToFile)
         figurapdf(anchoSm,altoSm);
