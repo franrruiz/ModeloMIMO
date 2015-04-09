@@ -3,7 +3,7 @@ COMP="/opt/intel/composerxe/bin/compilervars.sh"
 ENV="/mydata/opt/matlab/matlab_env.sh" 
 
 export LD_PRELOAD=/opt/intel/composerxe/mkl/lib/intel64/libmkl_rt.so:/opt/intel/composerxe/lib/intel64/libiomp5.so
-export OMP_NUM_THREADS=1
+export OMP_NUM_THREADS=20
 
 if [ -f $COMP ];
 then

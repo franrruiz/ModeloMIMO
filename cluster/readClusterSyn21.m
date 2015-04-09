@@ -26,6 +26,7 @@ Ltrue = 1;
 M = 2;
 lHead = 0;
 onOffModel = 0;
+Nparticles = 3000;
 MAX_Nt = 10;
 
 % Sweep and hold variables:
@@ -155,7 +156,7 @@ for sweepV=sweep_vec
             
             
             saveFile = ['/export/clusterdata/franrruiz87/ModeloMIMO/results/synthetic/' num2str(simId)...
-                        '/T' num2str(Taux) '_Nt' num2str(Ntaux) '_Nr' num2str(Nraux) '_M' num2str(Maux) '_Ltrue' num2str(Ltrueaux) '_L' num2str(Laux) '_SNR' num2str(SNRaux) '_lHead' num2str(lHeadaux), '_onOff' num2str(onOffModelaux) ...
+                        '/T' num2str(Taux) '_Nt' num2str(Ntaux) '_Nr' num2str(Nraux) '_M' num2str(Maux) '_Ltrue' num2str(Ltrueaux) '_L' num2str(Laux) '_SNR' num2str(SNRaux) '_lHead' num2str(lHeadaux), '_onOff' num2str(onOffModelaux) '_Npart' num2str(Nparticles) ...
                         '/itCluster' num2str(itCluster) '.mat'];
                     
             if(exist(saveFile,'file'))
