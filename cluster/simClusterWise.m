@@ -1,11 +1,11 @@
-function simClusterSyn(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,Nparticles,flagParallel,itCluster,simId)
+function simClusterWise(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,Nparticles,flagParallel,itCluster,simId)
 
 addpath(genpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab'));
 
 randn('seed',round(sum(1e5*clock)+itCluster));
 rand('seed',round(sum(1e5*clock)+itCluster));
 
-saveFolder = ['/export/clusterdata/franrruiz87/ModeloMIMO/results/synthetic/' num2str(simId) ...
+saveFolder = ['/export/clusterdata/franrruiz87/ModeloMIMO/results/wise/' num2str(simId) ...
               '/T' num2str(T) '_Nt' num2str(Nt) '_Nr' num2str(Nr) '_M' num2str(M) '_Ltrue' num2str(Ltrue) '_L' num2str(L) '_SNR' num2str(SNR) '_lHead' num2str(lHead), '_onOff' num2str(onOffModel) '_Npart' num2str(Nparticles)];
 saveFile = [saveFolder '/itCluster' num2str(itCluster)];
 
@@ -35,7 +35,7 @@ param.storeIters = 2000;
 param.header = ones(1,lHead);
 param.onOffModel = onOffModel;
 
-%% Generate data
+%% Load data
 noiseVar = 10^(-SNR/10);
 if(log2(M)==1)
     noiseVar = 2*noiseVar;
@@ -52,33 +52,50 @@ param.gen.burstLengthStdFactor = inf;
 param.gen.symbol0 = 0;
 param.gen.sparsityH = 0;
 
-if(simId<=10)
-    data = generate_data_bursts(param);
-elseif(simId==20 || simId==21)
-    % Load data from file
-    load(['/export/clusterdata/franrruiz87/ModeloMIMO/data/syn/' num2str(simId) '/T' num2str(param.T) '_itCluster' num2str(itCluster) '.mat']);
-    data.channel = sqrt(param.gen.varH/2)*channelGen(1:param.Nr,1:param.gen.Nt,1:max(param.gen.L_true));
-    data.symbols = symbolsGen{log2(M)}(1:param.gen.Nt,1:param.T);
-    data.seq = seqGen{log2(M)}(1:param.gen.Nt,1:param.T);
-    data.obs = zeros(param.Nr,param.T);
-    
-    noise = sqrt(param.gen.s2n/2)*noiseGen(1:param.Nr,1:param.T);
-    if(log2(M)==1)
-        data.symbols = real(data.symbols);
+if(simId==2)
+    hohChar = 'B';
+elseif(simId==3)
+    hohChar = 'B';
+else
+    error('Wrong value of simId');
+end
+% Load data from file
+load(['/export/clusterdata/franrruiz87/ModeloMIMO/data/WISEdata/preprocessed/hoh' hohChar '/T' num2str(param.T) '_Nt' num2str(param.gen.Nt) '.mat']);
+
+% Build the channel
+data.channel = zeros(param.Nr,param.gen.Nt,Ltrue);
+idxNZL = find(squeeze(sum(sum(channelGen~=0,1),2))>0);
+channelGen(:,:,[1:idxNZL(1)-1 idxNZL(end)+1:size(channelGen,3)]) = [];
+chuckSize = ceil(size(channelGen,3)/Ltrue);
+vecAuxL = 1:chuckSize:size(channelGen,3);
+for ll=1:length(vecAuxL)
+    if(ll==length(vecAuxL))
+        channelHaux = channelGen(:,:,vecAuxL(ll):size(channelGen,3));
+    else
+        channelHaux = channelGen(:,:,vecAuxL(ll):vecAuxL(ll+1)-1);
     end
-    for t=1:param.T
-        for i=0:max(param.gen.L_true)-1
-            if(t-i<=0)
-                data.obs(:,t) = data.obs(:,t) + data.channel(:,:,i+1)*param.gen.symbol0*ones(param.gen.Nt,1);
-            else
-                data.obs(:,t) = data.obs(:,t) + data.channel(:,:,i+1)*data.symbols(:,t-i);
-            end
+    data.channel(:,:,ll) = sum(channelHaux,3);
+end
+
+% Build the observations
+data.symbols = symbolsGen{log2(M)};
+data.seq = seqGen{log2(M)};
+data.obs = zeros(param.Nr,param.T);
+
+noise = sqrt(param.gen.s2n/2)*noiseGen;
+if(log2(M)==1)
+    data.symbols = real(data.symbols);
+end
+for t=1:param.T
+    for i=0:max(param.gen.L_true)-1
+        if(t-i<=0)
+            data.obs(:,t) = data.obs(:,t) + data.channel(:,:,i+1)*param.gen.symbol0*ones(param.gen.Nt,1);
+        else
+            data.obs(:,t) = data.obs(:,t) + data.channel(:,:,i+1)*data.symbols(:,t-i);
         end
     end
-    data.obs = data.obs+noise;
-else
-    error('I do not know how to generate data');
 end
+data.obs = data.obs+noise;
 
 %% Configuration parameters for BCJR, PGAS, EP, FFBS and collapsed Gibbs
 param.bcjr.p1 = 0.95;
@@ -102,25 +119,11 @@ param.infer.sampleNoiseVar = 0;
 param.infer.sampleChannel = 1;
 param.infer.sampleVarH = 1;
 param.infer.simulatedTempering = 0;
-param.infer.addArtificialNoise = 0;
-if(simId==12 && SNR>-12)
-    param.infer.simulatedTempering = 1;
-    param.temper.pKeep = 19/20;
-    param.temper.pNext = 0.75;
-    param.temper.s2yValues = 10.^(-linspace(-12,SNR,15)/10);   % (15 values from -12dB to SNR)
-elseif(simId==20)
-    param.infer.addArtificialNoise = 1;
-    param.artifNoise.itCycle = 1500;
-    param.artifNoise.stepDB = 3;
-    param.artifNoise.iniSNR = -12;
-    param.artifNoise.finalSNR = SNR;
-elseif(simId==21)
-    param.infer.addArtificialNoise = 1;
-    param.artifNoise.itCycle = 1;
-    param.artifNoise.stepDB = 12/6000;
-    param.artifNoise.iniSNR = -12;
-    param.artifNoise.finalSNR = SNR;
-end
+param.infer.addArtificialNoise = 1;
+param.artifNoise.itCycle = 1;
+param.artifNoise.stepDB = 12/6000;
+param.artifNoise.iniSNR = -12;
+param.artifNoise.finalSNR = SNR;
 param.bnp.betaSlice1 = 0.5;
 param.bnp.betaSlice2 = 5;
 param.bnp.maxMnew = 15;

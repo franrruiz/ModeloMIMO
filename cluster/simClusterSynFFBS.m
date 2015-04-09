@@ -1,4 +1,4 @@
-function simClusterSynFFBS(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,itCluster,simId)
+function simClusterSynFFBS(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,Nparticles,flagParallel,itCluster,simId)
 
 addpath(genpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab'));
 %addpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab/auxFunc/mtimesx_20110223');
@@ -7,7 +7,8 @@ addpath(genpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab'));
 randn('seed',round(sum(1e5*clock)+itCluster));
 rand('seed',round(sum(1e5*clock)+itCluster));
 
-saveFolder = ['/export/clusterdata/franrruiz87/ModeloMIMO/results/synthetic/' num2str(simId) '/T' num2str(T) '_Nt' num2str(Nt) '_Nr' num2str(Nr) '_M' num2str(M) '_Ltrue' num2str(Ltrue) '_L' num2str(L) '_SNR' num2str(SNR) '_lHead' num2str(lHead), '_onOff' num2str(onOffModel)];
+saveFolder = ['/export/clusterdata/franrruiz87/ModeloMIMO/results/synthetic/' num2str(simId)...
+              '/T' num2str(T) '_Nt' num2str(Nt) '_Nr' num2str(Nr) '_M' num2str(M) '_Ltrue' num2str(Ltrue) '_L' num2str(L) '_SNR' num2str(SNR) '_lHead' num2str(lHead), '_onOff' num2str(onOffModel) '_Npart' num2str(Nparticles)];
 saveFile = [saveFolder '/itCluster' num2str(itCluster)];
 
 if(~isdir([saveFile '/ffbs']))
@@ -52,12 +53,13 @@ end
 %% Configuration parameters for BCJR, PGAS, EP, FFBS and collapsed Gibbs
 param.bcjr.p1 = 0.95;
 param.bcjr.p2 = 0.05;
-param.pgas.N_PF = 3000;
-param.pgas.N_PG = 3000;
+param.pgas.N_PF = Nparticles;
+param.pgas.N_PG = Nparticles;
 param.pgas.Niter = 1;
 param.pgas.returnNsamples = 1;
 param.pgas.maxM = 40;
 param.pgas.particles = zeros(param.pgas.maxM,max(param.pgas.N_PF,param.pgas.N_PG),param.T,'int16');
+param.pgas.flagParallel = flagParallel;  %%% IF 1, IT CAN BE RUN ONLY OVER MULTICORE MACHINES
 param.ep.eps = 5e-7;
 param.ep.beta = 0.2;
 param.ep.Niter = 15;

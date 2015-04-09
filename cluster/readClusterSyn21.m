@@ -5,6 +5,7 @@ addpath aboxplot;
 
 maxItCluster = 50;
 Niter =  10000;
+maxNt = 20;
 
 %% Scenario definition
 
@@ -12,7 +13,6 @@ Niter =  10000;
 %%%%%%%%%%%%%%%
 plotToFile = 0;
 flagPlotGenie = 1;
-flagRestrictiveItCluster = 0;
 thrSER = 0.05;
 %%%%%%%%%%%%%%%
 
@@ -32,8 +32,8 @@ MAX_Nt = 10;
   % L = 1:
   %sweep_var = 'lHead'; sweep_vec = 0:3:3; simId = 21; etiquetaX='Header Length'; lugar='NorthEast'; hold_var='onOffModel'; hold_vec=0:1;
   %sweep_var = 'SNR'; sweep_vec = -15:3:-3; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
-  %sweep_var = 'Nt'; sweep_vec = 2:2:10; simId = 21; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
-  sweep_var = 'Nr'; sweep_vec = 5:5:25; simId = 21; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3;
+  sweep_var = 'Nt'; sweep_vec = 2:2:10; simId = 21; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
+  %sweep_var = 'Nr'; sweep_vec = 5:5:25; simId = 21; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3;
   %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 21; etiquetaX='log_2|A|'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
 
   % L = 3:
@@ -57,6 +57,11 @@ ALL_SER_ACT = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
 ALL_MEST = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
 ALL_RECOVERED = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
 
+ALL_ADER_indiv = -ones(maxItCluster,maxNt,length(sweep_vec),length(hold_vec));
+ALL_MMSE_indiv = -ones(maxItCluster,maxNt,length(sweep_vec),length(hold_vec));
+ALL_SER_ALL_indiv = -ones(maxItCluster,maxNt,length(sweep_vec),length(hold_vec));
+ALL_SER_ACT_indiv = -ones(maxItCluster,maxNt,length(sweep_vec),length(hold_vec));
+
 ALL_ADER_PGAS = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
 ALL_SER_ALL_PGAS = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
 ALL_SER_ACT_PGAS = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
@@ -69,6 +74,16 @@ ALL_ADER_FFBS = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
 ALL_SER_ALL_FFBS = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
 ALL_SER_ACT_FFBS = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
 ALL_MMSE_FFBS = zeros(maxItCluster,1,length(sweep_vec),length(hold_vec));
+
+ALL_ADER_PGAS_indiv = -ones(maxItCluster,maxNt,length(sweep_vec),length(hold_vec));
+ALL_SER_ALL_PGAS_indiv = -ones(maxItCluster,maxNt,length(sweep_vec),length(hold_vec));
+ALL_SER_ACT_PGAS_indiv = -ones(maxItCluster,maxNt,length(sweep_vec),length(hold_vec));
+ALL_ADER_BCJR_indiv = -ones(maxItCluster,maxNt,length(sweep_vec),length(hold_vec));
+ALL_SER_ALL_BCJR_indiv = -ones(maxItCluster,maxNt,length(sweep_vec),length(hold_vec));
+ALL_SER_ACT_BCJR_indiv = -ones(maxItCluster,maxNt,length(sweep_vec),length(hold_vec));
+ALL_ADER_FFBS_indiv = -ones(maxItCluster,maxNt,length(sweep_vec),length(hold_vec));
+ALL_SER_ALL_FFBS_indiv = -ones(maxItCluster,maxNt,length(sweep_vec),length(hold_vec));
+ALL_SER_ACT_FFBS_indiv = -ones(maxItCluster,maxNt,length(sweep_vec),length(hold_vec));
 
 %% Load results
 idxItClusterNotFound = [];
@@ -146,6 +161,7 @@ for sweepV=sweep_vec
             if(exist(saveFile,'file'))
                 clear ADER_PGAS3 ADER_BCJR3 ADER_FFBS3
                 load(saveFile,'ADER','MMSE','SER_ACT','SER_ALL','LLH','M_EST','*_indiv','*_PGAS3','*_BCJR3','*_FFBS3');
+                
                 ALL_ADER(itCluster,:,idxSweep,idxHold) = ADER;
                 ALL_MMSE(itCluster,:,idxSweep,idxHold) = MMSE;
                 ALL_LLH(itCluster,:,idxSweep,idxHold) = LLH;
@@ -154,23 +170,40 @@ for sweepV=sweep_vec
                 ALL_MEST(itCluster,:,idxSweep,idxHold) = M_EST;
                 ALL_RECOVERED(itCluster,1,idxSweep,idxHold) = sum(SER_ALL_indiv<thrSER);
                 
+                ALL_ADER_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_indiv;
+                ALL_MMSE_indiv(itCluster,1:length(MMSE_indiv),idxSweep,idxHold) = MMSE_indiv;
+                ALL_SER_ALL_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_indiv;
+                ALL_SER_ACT_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_indiv;
+                
                 if(exist('ADER_PGAS3','var'))
                     ALL_ADER_PGAS(itCluster,1,idxSweep,idxHold) = ADER_PGAS3;
                     ALL_SER_ALL_PGAS(itCluster,1,idxSweep,idxHold) = SER_ALL_PGAS3;
                     ALL_SER_ACT_PGAS(itCluster,1,idxSweep,idxHold) = SER_ACT_PGAS3;
                     ALL_MMSE_PGAS(itCluster,1,idxSweep,idxHold) = MMSE_PGAS3;
+                    
+                    ALL_ADER_PGAS_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_PGAS3_indiv;
+                    ALL_SER_ALL_PGAS_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_PGAS3_indiv;
+                    ALL_SER_ACT_PGAS_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_PGAS3_indiv;
                 end
                 if(exist('ADER_BCJR3','var'))
                     ALL_ADER_BCJR(itCluster,1,idxSweep,idxHold) = ADER_BCJR3;
                     ALL_SER_ALL_BCJR(itCluster,1,idxSweep,idxHold) = SER_ALL_BCJR3;
                     ALL_SER_ACT_BCJR(itCluster,1,idxSweep,idxHold) = SER_ACT_BCJR3;
                     ALL_MMSE_BCJR(itCluster,1,idxSweep,idxHold) = MMSE_BCJR3;
+                    
+                    ALL_ADER_BCJR_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_BCJR3_indiv;
+                    ALL_SER_ALL_BCJR_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_BCJR3_indiv;
+                    ALL_SER_ACT_BCJR_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_BCJR3_indiv;
                 end
                 if(exist('ADER_FFBS3','var'))
                     ALL_ADER_FFBS(itCluster,1,idxSweep,idxHold) = ADER_FFBS3;
                     ALL_SER_ALL_FFBS(itCluster,1,idxSweep,idxHold) = SER_ALL_FFBS3;
                     ALL_SER_ACT_FFBS(itCluster,1,idxSweep,idxHold) = SER_ACT_FFBS3;
                     ALL_MMSE_FFBS(itCluster,1,idxSweep,idxHold) = MMSE_FFBS3;
+                    
+                    ALL_ADER_FFBS_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_FFBS3_indiv;
+                    ALL_SER_ALL_FFBS_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_FFBS3_indiv;
+                    ALL_SER_ACT_FFBS_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_FFBS3_indiv;
                 end
             else
                 idxItClusterNotFound = unique([idxItClusterNotFound itCluster]);
@@ -208,6 +241,23 @@ ALL_SER_ACT_FFBS(idxItClusterNotFound,:,:,:) = [];
 ALL_MMSE_FFBS(idxItClusterNotFound,:,:,:) = [];
 
 ALL_RECOVERED(idxItClusterNotFound,:,:,:) = [];
+
+ALL_ADER_indiv(idxItClusterNotFound,:,:,:) = [];
+ALL_MMSE_indiv(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ALL_indiv(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ACT_indiv(idxItClusterNotFound,:,:,:) = [];
+
+ALL_ADER_PGAS_indiv(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ALL_PGAS_indiv(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ACT_PGAS_indiv(idxItClusterNotFound,:,:,:) = [];
+
+ALL_ADER_BCJR_indiv(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ALL_BCJR_indiv(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ACT_BCJR_indiv(idxItClusterNotFound,:,:,:) = [];
+
+ALL_ADER_FFBS_indiv(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ALL_FFBS_indiv(idxItClusterNotFound,:,:,:) = [];
+ALL_SER_ACT_FFBS_indiv(idxItClusterNotFound,:,:,:) = [];
 
 %% Build idxGood_M, idxBad_M
 Ntaux = Nt;
@@ -286,15 +336,8 @@ for holdV=hold_vec
             Ntaux = sweepV;
         end
         
-        if(flagRestrictiveItCluster)
-            auxIdxG = (sum(idxGood_M(:,:,:,idxHold),3)==length(sweep_vec));
-            idxGood = find(squeeze(auxIdxG));
-            auxIdxB = (sum(idxGood_M(:,:,:,idxHold),3)~=length(sweep_vec));
-            idxBad = find(squeeze(auxIdxB));
-        else
-            idxGood = find((ALL_MEST(:,end,idxSweep,idxHold)==Ntaux));
-            idxBad = find((ALL_MEST(:,end,idxSweep,idxHold)~=Ntaux));
-        end
+        idxGood = 1:maxItCluster; %find((ALL_MEST(:,end,idxSweep,idxHold)==Ntaux));
+        idxBad = 1:maxItCluster;  %find((ALL_MEST(:,end,idxSweep,idxHold)~=Ntaux));
         
         avgADER(idxSweep) = mean(ALL_ADER(idxGood,end,idxSweep,idxHold));
         stdADER(idxSweep) = std(ALL_ADER(idxGood,end,idxSweep,idxHold));

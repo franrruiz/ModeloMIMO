@@ -1,4 +1,4 @@
-function simClusterSynGenie(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,Nparticles,flagParallel,itCluster,simId)
+function simClusterWiseGenie(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,Nparticles,flagParallel,itCluster,simId)
 % 
 % Initially, it created variables ADER_PGAS, ADER_BCJR, etc.
 % It was computed with am=0.95, bm=0.05
@@ -17,10 +17,10 @@ addpath(genpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab'));
 randn('seed',round(sum(1e5*clock)+itCluster));
 rand('seed',round(sum(1e5*clock)+itCluster));
 
-saveFolder = ['/export/clusterdata/franrruiz87/ModeloMIMO/results/synthetic/' num2str(simId)...
+saveFolder = ['/export/clusterdata/franrruiz87/ModeloMIMO/results/wise/' num2str(simId) ...
               '/T' num2str(T) '_Nt' num2str(Nt) '_Nr' num2str(Nr) '_M' num2str(M) '_Ltrue' num2str(Ltrue) '_L' num2str(L) '_SNR' num2str(SNR) '_lHead' num2str(lHead), '_onOff' num2str(onOffModel) '_Npart' num2str(Nparticles)];
 saveFile = [saveFolder '/itCluster' num2str(itCluster)];
-saveTmpFolder = [saveFile '/pgas'];
+saveTmpFolder = [saveFile '/genie'];
 
 % Exit if BNP+PGAS has not finished yet
 if(~exist([saveFile '.mat'],'file'))
