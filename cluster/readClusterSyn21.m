@@ -13,7 +13,7 @@ maxNt = 20;
 %%%%%%%%%%%%%%%
 plotToFile = 0;
 flagPlotGenie = 1;
-thrSER = 0.05;
+thrSER = 0.01;
 %%%%%%%%%%%%%%%
 
 %Base scenario
@@ -31,17 +31,20 @@ MAX_Nt = 10;
 
 % Sweep and hold variables:
   % L = 1:
-  %sweep_var = 'lHead'; sweep_vec = 0:3:3; simId = 21; etiquetaX='Header Length'; lugar='NorthEast'; hold_var='onOffModel'; hold_vec=0:1;
-  %sweep_var = 'SNR'; sweep_vec = -15:3:-3; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
-  sweep_var = 'Nt'; sweep_vec = 2:2:10; simId = 21; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
+  %sweep_var = 'SNR'; sweep_vec = -15:3:0; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
+  %sweep_var = 'Nt'; sweep_vec = 2:2:10; simId = 21; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
   %sweep_var = 'Nr'; sweep_vec = 5:5:25; simId = 21; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3;
-  %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 21; etiquetaX='log_2|A|'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
+  %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 21; etiquetaX='log_2|A|'; lugar='SouthEast'; hold_var='SNR'; hold_vec=-3;
 
-  % L = 3:
-  %sweep_var = 'SNR'; sweep_vec = -3:3:0; simId = 21; etiquetaX='SNR (dB)'; lugar='NorthEast'; hold_var='L'; hold_vec=7; Ltrue=7;
-  %sweep_var = 'M'; sweep_vec = 2:2:4; simId = 21; etiquetaX='log_2|A|'; lugar='NorthWest'; hold_var='L'; hold_vec=3; Ltrue=3;
-  %sweep_var = 'SNR'; sweep_vec = -18:3:-12; simId = 21; etiquetaX='SNR (dB)'; lugar='NorthEast'; hold_var='L'; hold_vec=2;
+  % L = 5:
+  %sweep_var = 'SNR'; sweep_vec = -15:3:0; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5;
+
+  % Sweep Ltrue:
+  sweep_var = 'Ltrue'; sweep_vec = 1:2:7; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9;
   
+  % Sweep L:
+  %sweep_var = 'L'; sweep_vec = 1:1:3; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=1;
+
 marcadores = {'+','^','o','x'};
 estilos = {'-','--',':','-.'};
 colores = {'m','b','k','r'};
@@ -115,6 +118,7 @@ for sweepV=sweep_vec
         Laux = sweepV;
     elseif(strcmp(sweep_var,'Ltrue'))
         Ltrueaux = sweepV;
+        Laux = sweepV;
     elseif(strcmp(sweep_var,'M'))
         Maux = sweepV;
     elseif(strcmp(sweep_var,'lHead'))
@@ -216,6 +220,7 @@ for sweepV=sweep_vec
 end
 
 %% Remove not found itCluster's
+%idxItClusterNotFound = unique([idxItClusterNotFound 19]);
 if(~isempty(idxItClusterNotFound))
     disp(['WARNING: Removing ' num2str(length(idxItClusterNotFound)) ' simulations. Total is now: ' num2str(maxItCluster-length(idxItClusterNotFound))]);
 end
@@ -294,6 +299,10 @@ for holdV=hold_vec
     
     if(strcmp(hold_var,'Nt'))
         Ntaux = holdV;
+    elseif(strcmp(hold_var,'Ltrue'))
+        Ltrueaux = holdV;
+    elseif(strcmp(hold_var,'L'))
+        Laux = holdV;
     end
     
     % Load the results of interest
@@ -335,43 +344,114 @@ for holdV=hold_vec
         
         if(strcmp(sweep_var,'Nt'))
             Ntaux = sweepV;
+        elseif(strcmp(sweep_var,'Ltrue'))
+            Ltrueaux = sweepV;
+            Laux = sweepV;
         end
         
-        idxGood = 1:maxItCluster; %find((ALL_MEST(:,end,idxSweep,idxHold)==Ntaux));
-        idxBad = 1:maxItCluster;  %find((ALL_MEST(:,end,idxSweep,idxHold)~=Ntaux));
-        
-        avgADER(idxSweep) = mean(ALL_ADER(idxGood,end,idxSweep,idxHold));
-        stdADER(idxSweep) = std(ALL_ADER(idxGood,end,idxSweep,idxHold));
-        avgSER_ACT(idxSweep) = mean(ALL_SER_ACT(idxGood,end,idxSweep,idxHold));
-        stdSER_ACT(idxSweep) = std(ALL_SER_ACT(idxGood,end,idxSweep,idxHold));
-        avgSER_ALL(idxSweep) = mean(ALL_SER_ALL(idxGood,end,idxSweep,idxHold));
-        stdSER_ALL(idxSweep) = std(ALL_SER_ALL(idxGood,end,idxSweep,idxHold));
-        avgMEST(idxSweep) = mean(ALL_MEST(idxGood,end,idxSweep,idxHold));
-        stdMEST(idxSweep) = std(ALL_MEST(idxGood,end,idxSweep,idxHold));
-        avgMSE(idxSweep) = mean(ALL_MMSE(idxGood,end,idxSweep,idxHold));
-        stdMSE(idxSweep) = std(ALL_MMSE(idxGood,end,idxSweep,idxHold));
+        auxADER = [];
+        auxSER_ALL = [];
+        auxSER_ACT = [];
+        auxMMSE = [];
+        auxADER_PGAS = [];
+        auxSER_ALL_PGAS = [];
+        auxSER_ACT_PGAS = [];
+        auxADER_BCJR = [];
+        auxSER_ALL_BCJR = [];
+        auxSER_ACT_BCJR = [];
+        auxADER_FFBS = [];
+        auxSER_ALL_FFBS = [];
+        auxSER_ACT_FFBS = [];
+        for ii=1:maxItCluster-length(idxItClusterNotFound)
+            idxGood_indiv = (ALL_SER_ALL_indiv(ii,:,idxSweep,idxHold)<thrSER & ALL_SER_ALL_indiv(ii,:,idxSweep,idxHold)>=0);
+            auxADER = [auxADER ALL_ADER_indiv(ii,idxGood_indiv,idxSweep,idxHold)];
+            auxSER_ALL = [auxSER_ALL ALL_SER_ALL_indiv(ii,idxGood_indiv,idxSweep,idxHold)];
+            auxSER_ACT = [auxSER_ACT ALL_SER_ACT_indiv(ii,idxGood_indiv,idxSweep,idxHold)];
+            auxMMSE = [auxMMSE ALL_MMSE_indiv(ii,idxGood_indiv,idxSweep,idxHold)];
+            
+            idxGood_indiv = (ALL_SER_ALL_PGAS_indiv(ii,:,idxSweep,idxHold)<thrSER & ALL_SER_ALL_PGAS_indiv(ii,:,idxSweep,idxHold)>=0);
+            auxADER_PGAS = [auxADER_PGAS ALL_ADER_PGAS_indiv(ii,idxGood_indiv,idxSweep,idxHold)];
+            auxSER_ALL_PGAS = [auxSER_ALL_PGAS ALL_SER_ALL_PGAS_indiv(ii,idxGood_indiv,idxSweep,idxHold)];
+            auxSER_ACT_PGAS = [auxSER_ACT_PGAS ALL_SER_ACT_PGAS_indiv(ii,idxGood_indiv,idxSweep,idxHold)];
+            
+            idxGood_indiv = (ALL_SER_ALL_BCJR_indiv(ii,:,idxSweep,idxHold)<thrSER & ALL_SER_ALL_BCJR_indiv(ii,:,idxSweep,idxHold)>=0);
+            auxADER_BCJR = [auxADER_BCJR ALL_ADER_BCJR_indiv(ii,idxGood_indiv,idxSweep,idxHold)];
+            auxSER_ALL_BCJR = [auxSER_ALL_BCJR ALL_SER_ALL_BCJR_indiv(ii,idxGood_indiv,idxSweep,idxHold)];
+            auxSER_ACT_BCJR = [auxSER_ACT_BCJR ALL_SER_ACT_BCJR_indiv(ii,idxGood_indiv,idxSweep,idxHold)];
+            
+            idxGood_indiv = (ALL_SER_ALL_FFBS_indiv(ii,:,idxSweep,idxHold)<thrSER & ALL_SER_ALL_FFBS_indiv(ii,:,idxSweep,idxHold)>=0);
+            auxADER_FFBS = [auxADER_FFBS ALL_ADER_FFBS_indiv(ii,idxGood_indiv,idxSweep,idxHold)];
+            auxSER_ALL_FFBS = [auxSER_ALL_FFBS ALL_SER_ALL_FFBS_indiv(ii,idxGood_indiv,idxSweep,idxHold)];
+            auxSER_ACT_FFBS = [auxSER_ACT_FFBS ALL_SER_ACT_FFBS_indiv(ii,idxGood_indiv,idxSweep,idxHold)];
+        end
+        avgADER(idxSweep) = mean(auxADER);
+        stdADER(idxSweep) = std(auxADER);
+        avgSER_ACT(idxSweep) = mean(auxSER_ACT);
+        stdSER_ACT(idxSweep) = std(auxSER_ACT);
+        avgSER_ALL(idxSweep) = mean(auxSER_ALL);
+        stdSER_ALL(idxSweep) = std(auxSER_ALL);
+        avgMEST(idxSweep) = mean(ALL_MEST(:,end,idxSweep,idxHold));
+        stdMEST(idxSweep) = std(ALL_MEST(:,end,idxSweep,idxHold));
+        avgMSE(idxSweep) = mean(auxMMSE);
+        stdMSE(idxSweep) = std(auxMMSE);
         boxMEST(:,idxSweep) = abs(ALL_MEST(:,end,idxSweep,idxHold));
         
-        avgADER_PGAS(idxSweep) = mean(ALL_ADER_PGAS(idxGood,1,idxSweep,idxHold));
-        stdADER_PGAS(idxSweep) = std(ALL_ADER_PGAS(idxGood,1,idxSweep,idxHold));
-        avgSER_ACT_PGAS(idxSweep) = mean(ALL_SER_ACT_PGAS(idxGood,1,idxSweep,idxHold));
-        stdSER_ACT_PGAS(idxSweep) = std(ALL_SER_ACT_PGAS(idxGood,1,idxSweep,idxHold));
-        avgSER_ALL_PGAS(idxSweep) = mean(ALL_SER_ALL_PGAS(idxGood,1,idxSweep,idxHold));
-        stdSER_ALL_PGAS(idxSweep) = std(ALL_SER_ALL_PGAS(idxGood,1,idxSweep,idxHold));
+        avgADER_PGAS(idxSweep) = mean(auxADER_PGAS);
+        stdADER_PGAS(idxSweep) = std(auxADER_PGAS);
+        avgSER_ACT_PGAS(idxSweep) = mean(auxSER_ACT_PGAS);
+        stdSER_ACT_PGAS(idxSweep) = std(auxSER_ACT_PGAS);
+        avgSER_ALL_PGAS(idxSweep) = mean(auxSER_ALL_PGAS);
+        stdSER_ALL_PGAS(idxSweep) = std(auxSER_ALL_PGAS);
         
-        avgADER_BCJR(idxSweep) = mean(ALL_ADER_BCJR(idxGood,1,idxSweep,idxHold));
-        stdADER_BCJR(idxSweep) = std(ALL_ADER_BCJR(idxGood,1,idxSweep,idxHold));
-        avgSER_ACT_BCJR(idxSweep) = mean(ALL_SER_ACT_BCJR(idxGood,1,idxSweep,idxHold));
-        stdSER_ACT_BCJR(idxSweep) = std(ALL_SER_ACT_BCJR(idxGood,1,idxSweep,idxHold));
-        avgSER_ALL_BCJR(idxSweep) = mean(ALL_SER_ALL_BCJR(idxGood,1,idxSweep,idxHold));
-        stdSER_ALL_BCJR(idxSweep) = std(ALL_SER_ALL_BCJR(idxGood,1,idxSweep,idxHold));
+        avgADER_BCJR(idxSweep) = mean(auxADER_BCJR);
+        stdADER_BCJR(idxSweep) = std(auxADER_BCJR);
+        avgSER_ACT_BCJR(idxSweep) = mean(auxSER_ACT_BCJR);
+        stdSER_ACT_BCJR(idxSweep) = std(auxSER_ACT_BCJR);
+        avgSER_ALL_BCJR(idxSweep) = mean(auxSER_ALL_BCJR);
+        stdSER_ALL_BCJR(idxSweep) = std(auxSER_ALL_BCJR);
         
-        avgADER_FFBS(idxSweep) = mean(ALL_ADER_FFBS(idxGood,1,idxSweep,idxHold));
-        stdADER_FFBS(idxSweep) = std(ALL_ADER_FFBS(idxGood,1,idxSweep,idxHold));
-        avgSER_ACT_FFBS(idxSweep) = mean(ALL_SER_ACT_FFBS(idxGood,1,idxSweep,idxHold));
-        stdSER_ACT_FFBS(idxSweep) = std(ALL_SER_ACT_FFBS(idxGood,1,idxSweep,idxHold));
-        avgSER_ALL_FFBS(idxSweep) = mean(ALL_SER_ALL_FFBS(idxGood,1,idxSweep,idxHold));
-        stdSER_ALL_FFBS(idxSweep) = std(ALL_SER_ALL_FFBS(idxGood,1,idxSweep,idxHold));
+        avgADER_FFBS(idxSweep) = mean(auxADER_FFBS);
+        stdADER_FFBS(idxSweep) = std(auxADER_FFBS);
+        avgSER_ACT_FFBS(idxSweep) = mean(auxSER_ACT_FFBS);
+        stdSER_ACT_FFBS(idxSweep) = std(auxSER_ACT_FFBS);
+        avgSER_ALL_FFBS(idxSweep) = mean(auxSER_ALL_FFBS);
+        stdSER_ALL_FFBS(idxSweep) = std(auxSER_ALL_FFBS);
+        
+%         idxGood = 1:maxItCluster; %find((ALL_MEST(:,end,idxSweep,idxHold)==Ntaux));
+%         idxBad = 1:maxItCluster;  %find((ALL_MEST(:,end,idxSweep,idxHold)~=Ntaux));
+%         
+%         avgADER(idxSweep) = mean(ALL_ADER(idxGood,end,idxSweep,idxHold));
+%         stdADER(idxSweep) = std(ALL_ADER(idxGood,end,idxSweep,idxHold));
+%         avgSER_ACT(idxSweep) = mean(ALL_SER_ACT(idxGood,end,idxSweep,idxHold));
+%         stdSER_ACT(idxSweep) = std(ALL_SER_ACT(idxGood,end,idxSweep,idxHold));
+%         avgSER_ALL(idxSweep) = mean(ALL_SER_ALL(idxGood,end,idxSweep,idxHold));
+%         stdSER_ALL(idxSweep) = std(ALL_SER_ALL(idxGood,end,idxSweep,idxHold));
+%         avgMEST(idxSweep) = mean(ALL_MEST(idxGood,end,idxSweep,idxHold));
+%         stdMEST(idxSweep) = std(ALL_MEST(idxGood,end,idxSweep,idxHold));
+%         avgMSE(idxSweep) = mean(ALL_MMSE(idxGood,end,idxSweep,idxHold));
+%         stdMSE(idxSweep) = std(ALL_MMSE(idxGood,end,idxSweep,idxHold));
+%         boxMEST(:,idxSweep) = abs(ALL_MEST(:,end,idxSweep,idxHold));
+%         
+%         avgADER_PGAS(idxSweep) = mean(ALL_ADER_PGAS(idxGood,1,idxSweep,idxHold));
+%         stdADER_PGAS(idxSweep) = std(ALL_ADER_PGAS(idxGood,1,idxSweep,idxHold));
+%         avgSER_ACT_PGAS(idxSweep) = mean(ALL_SER_ACT_PGAS(idxGood,1,idxSweep,idxHold));
+%         stdSER_ACT_PGAS(idxSweep) = std(ALL_SER_ACT_PGAS(idxGood,1,idxSweep,idxHold));
+%         avgSER_ALL_PGAS(idxSweep) = mean(ALL_SER_ALL_PGAS(idxGood,1,idxSweep,idxHold));
+%         stdSER_ALL_PGAS(idxSweep) = std(ALL_SER_ALL_PGAS(idxGood,1,idxSweep,idxHold));
+%         
+%         avgADER_BCJR(idxSweep) = mean(ALL_ADER_BCJR(idxGood,1,idxSweep,idxHold));
+%         stdADER_BCJR(idxSweep) = std(ALL_ADER_BCJR(idxGood,1,idxSweep,idxHold));
+%         avgSER_ACT_BCJR(idxSweep) = mean(ALL_SER_ACT_BCJR(idxGood,1,idxSweep,idxHold));
+%         stdSER_ACT_BCJR(idxSweep) = std(ALL_SER_ACT_BCJR(idxGood,1,idxSweep,idxHold));
+%         avgSER_ALL_BCJR(idxSweep) = mean(ALL_SER_ALL_BCJR(idxGood,1,idxSweep,idxHold));
+%         stdSER_ALL_BCJR(idxSweep) = std(ALL_SER_ALL_BCJR(idxGood,1,idxSweep,idxHold));
+%         
+%         avgADER_FFBS(idxSweep) = mean(ALL_ADER_FFBS(idxGood,1,idxSweep,idxHold));
+%         stdADER_FFBS(idxSweep) = std(ALL_ADER_FFBS(idxGood,1,idxSweep,idxHold));
+%         avgSER_ACT_FFBS(idxSweep) = mean(ALL_SER_ACT_FFBS(idxGood,1,idxSweep,idxHold));
+%         stdSER_ACT_FFBS(idxSweep) = std(ALL_SER_ACT_FFBS(idxGood,1,idxSweep,idxHold));
+%         avgSER_ALL_FFBS(idxSweep) = mean(ALL_SER_ALL_FFBS(idxGood,1,idxSweep,idxHold));
+%         stdSER_ALL_FFBS(idxSweep) = std(ALL_SER_ALL_FFBS(idxGood,1,idxSweep,idxHold));
     end
     
     % Plot ADER
@@ -403,6 +483,9 @@ for holdV=hold_vec
         idxBCJR = find((1+2.^sweep_vec).^(2*Laux*Ntaux)<1e6);
         idxFFBS = find((1+2.^sweep_vec).^(2*Laux)<1e6);
     elseif(strcmp(sweep_var,'L'))
+        idxBCJR = find((1+2^Maux).^(2*sweep_vec*Ntaux)<1e6);
+        idxFFBS = find((1+2^Maux).^(2*sweep_vec)<1e6);
+    elseif(strcmp(sweep_var,'Ltrue'))
         idxBCJR = find((1+2^Maux).^(2*sweep_vec*Ntaux)<1e6);
         idxFFBS = find((1+2^Maux).^(2*sweep_vec)<1e6);
     else

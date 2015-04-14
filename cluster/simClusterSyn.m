@@ -54,7 +54,7 @@ param.gen.sparsityH = 0;
 
 if(simId<=10)
     data = generate_data_bursts(param);
-elseif(simId==20 || simId==21)
+elseif(simId==20 || simId==21 || simId==22)
     % Load data from file
     load(['/export/clusterdata/franrruiz87/ModeloMIMO/data/syn/' num2str(simId) '/T' num2str(param.T) '_itCluster' num2str(itCluster) '.mat']);
     data.channel = sqrt(param.gen.varH/2)*channelGen(1:param.Nr,1:param.gen.Nt,1:max(param.gen.L_true));
@@ -114,7 +114,7 @@ elseif(simId==20)
     param.artifNoise.stepDB = 3;
     param.artifNoise.iniSNR = -12;
     param.artifNoise.finalSNR = SNR;
-elseif(simId==21)
+elseif(simId==21 || simId==22)
     param.infer.addArtificialNoise = 1;
     param.artifNoise.itCycle = 1;
     param.artifNoise.stepDB = 12/6000;
