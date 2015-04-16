@@ -16,15 +16,6 @@ function [ADER SER_ALL SER_ACT MMSE vec_ord rot ADER_indiv SER_ALL_indiv SER_ACT
 % or MSE (for each transmitter)
 % 
 
-if(nargin==4)
-    flagExhaustiveOrder = 1;
-    flagExhaustiveRot = 1;
-elseif(nargin==5)
-    flagExhaustiveRot = 1;
-elseif(nargin<4)
-    error('Wrong number of inputs');
-end
-
 [Mest T] = size(samples.Z);
 Nt = size(data.symbols,1);
 

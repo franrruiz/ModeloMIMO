@@ -1,4 +1,4 @@
-function simClusterWise(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,Nparticles,flagParallel,itCluster,simId)
+function simClusterWise(T,Nt,Nr,M,L,Niter,lHead,onOffModel,Nparticles,flagParallel,itCluster,simId)
 
 addpath(genpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab'));
 
@@ -6,7 +6,7 @@ randn('seed',round(sum(1e5*clock)+itCluster));
 rand('seed',round(sum(1e5*clock)+itCluster));
 
 saveFolder = ['/export/clusterdata/franrruiz87/ModeloMIMO/results/wise/' num2str(simId) ...
-              '/T' num2str(T) '_Nt' num2str(Nt) '_Nr' num2str(Nr) '_M' num2str(M) '_Ltrue' num2str(Ltrue) '_L' num2str(L) '_SNR' num2str(SNR) '_lHead' num2str(lHead), '_onOff' num2str(onOffModel) '_Npart' num2str(Nparticles)];
+              '/T' num2str(T) '_Nt' num2str(Nt) '_Nr' num2str(Nr) '_M' num2str(M) '_L' num2str(L) '_lHead' num2str(lHead), '_onOff' num2str(onOffModel) '_Npart' num2str(Nparticles)];
 saveFile = [saveFolder '/itCluster' num2str(itCluster)];
 
 if(~isdir(saveFolder))
@@ -36,12 +36,12 @@ param.header = ones(1,lHead);
 param.onOffModel = onOffModel;
 
 %% Load data
-noiseVar = 10^(-SNR/10);
+noiseVar = 7.962143411069940e-13;   % This was obtained with Tsmp=1/40e6
+SNR = -10*log10(noiseVar);
 if(log2(M)==1)
     noiseVar = 2*noiseVar;
 end
 param.gen.s2n = noiseVar;
-param.gen.L_true = Ltrue*ones(1,Nt);
 param.gen.varH = 1;
 if(log2(M)==1)
     param.gen.varH = 2*param.gen.varH;
@@ -55,7 +55,7 @@ param.gen.sparsityH = 0;
 if(simId==2)
     hohChar = 'B';
 elseif(simId==3)
-    hohChar = 'B';
+    hohChar = 'C';
 else
     error('Wrong value of simId');
 end
@@ -63,11 +63,12 @@ end
 load(['/export/clusterdata/franrruiz87/ModeloMIMO/data/WISEdata/preprocessed/hoh' hohChar '/T' num2str(param.T) '_Nt' num2str(param.gen.Nt) '.mat']);
 
 % Build the channel
-data.channel = zeros(param.Nr,param.gen.Nt,Ltrue);
-idxNZL = find(squeeze(sum(sum(channelGen~=0,1),2))>0);
-channelGen(:,:,[1:idxNZL(1)-1 idxNZL(end)+1:size(channelGen,3)]) = [];
-chuckSize = ceil(size(channelGen,3)/Ltrue);
+chuckSize = 50;
+channelGen(abs(channelGen)<sqrt(noiseVar)) = 0;
 vecAuxL = 1:chuckSize:size(channelGen,3);
+Ltrue = length(vecAuxL);
+data.channel = zeros(param.Nr,param.gen.Nt,Ltrue);
+param.gen.L_true = Ltrue*ones(1,param.gen.Nt);   % Configure the true channel length
 for ll=1:length(vecAuxL)
     if(ll==length(vecAuxL))
         channelHaux = channelGen(:,:,vecAuxL(ll):size(channelGen,3));
@@ -85,6 +86,8 @@ data.obs = zeros(param.Nr,param.T);
 noise = sqrt(param.gen.s2n/2)*noiseGen;
 if(log2(M)==1)
     data.symbols = real(data.symbols);
+    noise = real(noise);
+    data.channel = real(data.channel);
 end
 for t=1:param.T
     for i=0:max(param.gen.L_true)-1
@@ -121,7 +124,7 @@ param.infer.sampleVarH = 1;
 param.infer.simulatedTempering = 0;
 param.infer.addArtificialNoise = 1;
 param.artifNoise.itCycle = 1;
-param.artifNoise.stepDB = 22/6000;
+param.artifNoise.stepDB = 0.0095;  % This goes from -12 to 121 in 14000 iterations
 param.artifNoise.iniSNR = -12;
 param.artifNoise.finalSNR = SNR;
 param.bnp.betaSlice1 = 0.5;
@@ -130,7 +133,7 @@ param.bnp.maxMnew = 15;
 param.bnp.Mini = 1;
 
 %% Hyperparameters
-hyper.s2h = 1;      % E[s2H(r)]=s2h*exp(-lambda*(r-1))
+hyper.s2h = 0.01;      % E[s2H(r)]=s2h*exp(-lambda*(r-1))
 if(M==1)
     hyper.s2h = 2*hyper.s2h;
 end
