@@ -16,8 +16,33 @@ if(~isdir(saveFile))
     mkdir(saveFile);
 end
 
+flagRecovered = 0;
+itInit = 0;
+storeIters = 2000;
+% Check if the final result already exists
 if(exist([saveFile '.mat'],'file'))
-    return;
+    load([saveFile '.mat'],'data','init','samples','ADER','SER_ALL','SER_ACT','MMSE','LLH','M_EST','samplesAll');
+    NiterPrev = length(LLH)-1;
+    % If exists and the number of iterations is the right one, then exit
+    if(NiterPrev==Niter)
+        return;
+    % If exists but needs more iterations, then go ahead
+    elseif(NiterPrev<Niter)
+        flagRecovered = 1;
+        itInit = NiterPrev;
+        LLH = [LLH zeros(1,Niter-NiterPrev)];
+        ADER = [ADER zeros(1,Niter-NiterPrev)];
+        SER_ALL = [SER_ALL zeros(1,Niter-NiterPrev)];
+        SER_ACT = [SER_ACT zeros(1,Niter-NiterPrev)];
+        MMSE = [MMSE zeros(1,Niter-NiterPrev)];
+        M_EST = [M_EST zeros(1,Niter-NiterPrev)];
+        samplesAllNew = cell(1,storeIters);
+        for ii=Niter-NiterPrev+1:storeIters
+            samplesAllNew{ii-(Niter-NiterPrev)} = samplesAll{ii};
+        end
+        samplesAll = samplesAllNew;
+        clear samplesAllNew;
+    end
 end
 
 %% Configuration parameters
@@ -31,7 +56,7 @@ param.flag0 = 1;    % Consider symbol 0 as part of the constellation (if false, 
 param.L = L;        % Channel memory to be considered during inference
 param.Niter = Niter;  % Number of iterations of the sampler
 param.saveCycle = 200;
-param.storeIters = 2000;
+param.storeIters = storeIters;
 param.header = ones(1,lHead);
 param.onOffModel = onOffModel;
 
@@ -54,7 +79,7 @@ param.gen.sparsityH = 0;
 
 if(simId<=10)
     data = generate_data_bursts(param);
-elseif(simId==20 || simId==21 || simId==22)
+elseif(simId==20 || simId==21 || simId==22) && (~flagRecovered)
     % Load data from file
     load(['/export/clusterdata/franrruiz87/ModeloMIMO/data/syn/' num2str(simId) '/T' num2str(param.T) '_itCluster' num2str(itCluster) '.mat']);
     data.channel = sqrt(param.gen.varH/2)*channelGen(1:param.Nr,1:param.gen.Nt,1:max(param.gen.L_true));
@@ -140,15 +165,19 @@ hyper.tau = 1;      % Parameter for s2y ~ IG(tau,nu)
 hyper.nu = 1;       % Parameter for s2y ~ IG(tau,nu)
 
 %% Check if there are temporary files to be loaded
-flagRecovered = 0;
-itInit = 0;
-it = param.saveCycle;
+flagRecoveredFromFinalFile = 0;
+if(~flagRecovered)
+    it = param.saveCycle;
+else
+    it = NiterPrev+param.saveCycle;
+    flagRecoveredFromFinalFile = 1;
+end
 while(it<=param.Niter)
     if(exist([saveFile '/it' num2str(it) '.mat'],'file'))
         try
             % Try to load the temporary file
             load([saveFile '/it' num2str(it) '.mat']);
-            % If success, then save current iteration and activate flag
+            % If success, then keep current iteration and activate flag
             itInit = it;
             flagRecovered = 1;
             % Delete previous file (it-saveCycle) in order not to exceed disk quota
@@ -167,6 +196,11 @@ while(it<=param.Niter)
     end
     it = it+param.saveCycle;
 end
+if((~flagRecovered)&&(flagRecoveredFromFinalFile))
+    flagRecovered = 1;
+    itInit = NiterPrev;
+end
+
 
 %% Initialization
 if(~flagRecovered)
@@ -271,10 +305,6 @@ for it=itInit+1:param.Niter
     M_EST(it) = sum(sum(samples.seq~=0,2)>0);
     % Trace of the log-likelihood
     LLH(it) = compute_llh(data,samples,hyper,param);
-    % SER, ADER
-    if(it==param.Niter)
-        [ADER(it) SER_ALL(it) SER_ACT(it) MMSE(it) vec_ord rot] = compute_error_rates(data,samples,hyper,param);
-    end
     
     %% Save temporary result file
     if(mod(it,param.saveCycle)==0)
