@@ -101,7 +101,7 @@ elseif(simId==20 || simId==21 || simId==22) && (~flagRecovered)
         end
     end
     data.obs = data.obs+noise;
-else
+elseif(~flagRecovered)
     error('I do not know how to generate data');
 end
 
@@ -342,7 +342,7 @@ LLH(param.Niter+1) = compute_llh(data,auxSample,hyper,param);
 M_EST(param.Niter+1) = sum(sum(auxSample.seq~=0,2)>0);
 
 %% Save result
-save([saveFile '.mat'],'data','init','samples','ADER','SER_ALL','SER_ACT','MMSE','LLH','M_EST','samplesAll','*_indiv');
+save([saveFile '.mat'],'data','init','samples','ADER','SER_ALL','SER_ACT','MMSE','LLH','M_EST','samplesAll','*_indiv','-append');
 
 % If successfully saved, detele previous temporary file
 if(exist([saveFile '/it' num2str(param.Niter) '.mat'],'file'))
