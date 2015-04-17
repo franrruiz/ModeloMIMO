@@ -164,8 +164,8 @@ for sweepV=sweep_vec
                         '/itCluster' num2str(itCluster) '.mat'];
                     
             if(exist(saveFile,'file'))
-                clear ADER_PGAS3 ADER_BCJR3 ADER_FFBS3
-                load(saveFile,'ADER','MMSE','SER_ACT','SER_ALL','LLH','M_EST','*_indiv','*_PGAS3','*_BCJR3','*_FFBS3');
+                clear ADER_PGAS4 ADER_BCJR4 ADER_FFBS4
+                load(saveFile,'ADER','MMSE','SER_ACT','SER_ALL','LLH','M_EST','*_indiv','*_PGAS4','*_BCJR4','*_FFBS4');
                 
                 ALL_ADER(itCluster,:,idxSweep,idxHold) = ADER;
                 ALL_MMSE(itCluster,:,idxSweep,idxHold) = MMSE;
@@ -180,35 +180,35 @@ for sweepV=sweep_vec
                 ALL_SER_ALL_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_indiv;
                 ALL_SER_ACT_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_indiv;
                 
-                if(exist('ADER_PGAS3','var'))
-                    ALL_ADER_PGAS(itCluster,1,idxSweep,idxHold) = ADER_PGAS3;
-                    ALL_SER_ALL_PGAS(itCluster,1,idxSweep,idxHold) = SER_ALL_PGAS3;
-                    ALL_SER_ACT_PGAS(itCluster,1,idxSweep,idxHold) = SER_ACT_PGAS3;
-                    ALL_MMSE_PGAS(itCluster,1,idxSweep,idxHold) = MMSE_PGAS3;
+                if(exist('ADER_PGAS4','var'))
+                    ALL_ADER_PGAS(itCluster,1,idxSweep,idxHold) = ADER_PGAS4;
+                    ALL_SER_ALL_PGAS(itCluster,1,idxSweep,idxHold) = SER_ALL_PGAS4;
+                    ALL_SER_ACT_PGAS(itCluster,1,idxSweep,idxHold) = SER_ACT_PGAS4;
+                    ALL_MMSE_PGAS(itCluster,1,idxSweep,idxHold) = MMSE_PGAS4;
                     
-                    ALL_ADER_PGAS_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_PGAS3_indiv;
-                    ALL_SER_ALL_PGAS_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_PGAS3_indiv;
-                    ALL_SER_ACT_PGAS_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_PGAS3_indiv;
+                    ALL_ADER_PGAS_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_PGAS4_indiv;
+                    ALL_SER_ALL_PGAS_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_PGAS4_indiv;
+                    ALL_SER_ACT_PGAS_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_PGAS4_indiv;
                 end
-                if(exist('ADER_BCJR3','var'))
-                    ALL_ADER_BCJR(itCluster,1,idxSweep,idxHold) = ADER_BCJR3;
-                    ALL_SER_ALL_BCJR(itCluster,1,idxSweep,idxHold) = SER_ALL_BCJR3;
-                    ALL_SER_ACT_BCJR(itCluster,1,idxSweep,idxHold) = SER_ACT_BCJR3;
-                    ALL_MMSE_BCJR(itCluster,1,idxSweep,idxHold) = MMSE_BCJR3;
+                if(exist('ADER_BCJR4','var'))
+                    ALL_ADER_BCJR(itCluster,1,idxSweep,idxHold) = ADER_BCJR4;
+                    ALL_SER_ALL_BCJR(itCluster,1,idxSweep,idxHold) = SER_ALL_BCJR4;
+                    ALL_SER_ACT_BCJR(itCluster,1,idxSweep,idxHold) = SER_ACT_BCJR4;
+                    ALL_MMSE_BCJR(itCluster,1,idxSweep,idxHold) = MMSE_BCJR4;
                     
-                    ALL_ADER_BCJR_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_BCJR3_indiv;
-                    ALL_SER_ALL_BCJR_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_BCJR3_indiv;
-                    ALL_SER_ACT_BCJR_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_BCJR3_indiv;
+                    ALL_ADER_BCJR_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_BCJR4_indiv;
+                    ALL_SER_ALL_BCJR_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_BCJR4_indiv;
+                    ALL_SER_ACT_BCJR_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_BCJR4_indiv;
                 end
-                if(exist('ADER_FFBS3','var'))
-                    ALL_ADER_FFBS(itCluster,1,idxSweep,idxHold) = ADER_FFBS3;
-                    ALL_SER_ALL_FFBS(itCluster,1,idxSweep,idxHold) = SER_ALL_FFBS3;
-                    ALL_SER_ACT_FFBS(itCluster,1,idxSweep,idxHold) = SER_ACT_FFBS3;
-                    ALL_MMSE_FFBS(itCluster,1,idxSweep,idxHold) = MMSE_FFBS3;
+                if(exist('ADER_FFBS4','var'))
+                    ALL_ADER_FFBS(itCluster,1,idxSweep,idxHold) = ADER_FFBS4;
+                    ALL_SER_ALL_FFBS(itCluster,1,idxSweep,idxHold) = SER_ALL_FFBS4;
+                    ALL_SER_ACT_FFBS(itCluster,1,idxSweep,idxHold) = SER_ACT_FFBS4;
+                    ALL_MMSE_FFBS(itCluster,1,idxSweep,idxHold) = MMSE_FFBS4;
                     
-                    ALL_ADER_FFBS_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_FFBS3_indiv;
-                    ALL_SER_ALL_FFBS_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_FFBS3_indiv;
-                    ALL_SER_ACT_FFBS_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_FFBS3_indiv;
+                    ALL_ADER_FFBS_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_FFBS4_indiv;
+                    ALL_SER_ALL_FFBS_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_FFBS4_indiv;
+                    ALL_SER_ACT_FFBS_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_FFBS4_indiv;
                 end
             else
                 idxItClusterNotFound = unique([idxItClusterNotFound itCluster]);
