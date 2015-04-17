@@ -142,7 +142,7 @@ elseif(simId==20)
 elseif(simId==21 || simId==22)
     param.infer.addArtificialNoise = 1;
     param.artifNoise.itCycle = 1;
-    param.artifNoise.stepDB = 12/6000;
+    param.artifNoise.stepDB = 12/6000; % This goes from -12dB to 12dB in 12000 it's
     param.artifNoise.iniSNR = -12;
     param.artifNoise.finalSNR = SNR;
 end
