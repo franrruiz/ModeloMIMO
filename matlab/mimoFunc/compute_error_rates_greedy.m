@@ -18,9 +18,63 @@ function [ADER SER_ALL SER_ACT MMSE vec_ord rot ADER_indiv SER_ALL_indiv SER_ACT
 
 [Mest T] = size(samples.Z);
 Nt = size(data.symbols,1);
-
+despMax = max(param.L,10);
 thr = min(abs(param.constellation))/10;
+thrSER = 0.1;
 
+if(Mest==Nt)
+    vec_ord = zeros(1,Nt);
+    rot = zeros(1,Nt)+1i*zeros(1,Nt);
+    alreadyChosen = [];
+    notChosen = 1:Nt;
+    
+    vec_ord_inf = zeros(1,Mest);
+    rot_inf = zeros(1,Mest);
+    
+    % We match the inferred transmitters with the true ones
+    for m=1:Mest
+        flagChosen = 0;
+        min_ser_m = inf;
+        ll=-despMax;
+        while(ll<=despMax && ~flagChosen)
+            % Shifted replica of Z(m,:)
+            Zm = [zeros(1,max(0,ll)) samples.Z(m,max(1-ll,1):min(T-ll,T)) zeros(1,max(0,-ll))];
+            r = 0;
+            while(r<=3 && ~flagChosen)
+                % Rotate the constellation by a factor of pi*r/2
+                Zm_rot = Zm*exp(1i*r*pi/2);
+                % Compute the SER vs all transmitters
+                ser_vs_all = sum(abs(repmat(Zm_rot,Nt,1)-data.symbols)>thr,2)/T;
+                % If the SER of the m-th Tx has improved
+                if(min(ser_vs_all(notChosen))<min_ser_m)
+                    % Find those tx's for which the SER is below threshold
+                    idx_all = find(ser_vs_all(notChosen)<thrSER);
+                    if(isempty(idx_all))
+                        [min_ser_m idxSelected] = min(ser_vs_all(notChosen));
+                        vec_ord_inf(m) = notChosen(idxSelected);
+                        rot_inf(m) = r;
+                    else
+                        [min_ser_m idxSelected] = min(ser_vs_all(notChosen));
+                        vec_ord_inf(m) = notChosen(idxSelected);
+                        rot_inf(m) = r;
+                        alreadyChosen = [alreadyChosen notChosen(idxSelected)];
+                        notChosen(notChosen==notChosen(idxSelected)) = [];
+                        flagChosen = 1;
+                    end
+                end
+                r = r+1;
+            end
+            ll = ll+1;
+        end
+    end
+end
+
+
+
+
+
+
+return;
 if(Mest<Nt)
     samples.H = cat(2,samples.H,zeros(param.Nr,Nt-Mest,param.L));
 	samples.Z = [samples.Z; zeros(Nt-Mest,size(samples.Z,2))];

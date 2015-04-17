@@ -342,7 +342,11 @@ LLH(param.Niter+1) = compute_llh(data,auxSample,hyper,param);
 M_EST(param.Niter+1) = sum(sum(auxSample.seq~=0,2)>0);
 
 %% Save result
-save([saveFile '.mat'],'data','init','samples','ADER','SER_ALL','SER_ACT','MMSE','LLH','M_EST','samplesAll','*_indiv','-append');
+if(exist([saveFile '.mat'],'file'))
+    save([saveFile '.mat'],'data','init','samples','ADER','SER_ALL','SER_ACT','MMSE','LLH','M_EST','samplesAll','*_indiv','-append');
+else
+    save([saveFile '.mat'],'data','init','samples','ADER','SER_ALL','SER_ACT','MMSE','LLH','M_EST','samplesAll','*_indiv');
+end
 
 % If successfully saved, detele previous temporary file
 if(exist([saveFile '/it' num2str(param.Niter) '.mat'],'file'))
