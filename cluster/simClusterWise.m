@@ -36,7 +36,7 @@ param.header = ones(1,lHead);
 param.onOffModel = onOffModel;
 
 %% Load data
-noiseVar = 7.962143411069940e-13;   % This was obtained with Tsmp=1/40e6
+noiseVar = 7.962143411069940e-13;    % This was obtained with Tsmp=1/40e6
 SNR = -10*log10(noiseVar);
 if(log2(M)==1)
     noiseVar = 2*noiseVar;
@@ -61,10 +61,10 @@ else
 end
 % Load data from file
 load(['/export/clusterdata/franrruiz87/ModeloMIMO/data/WISEdata/preprocessed/hoh' hohChar '/T' num2str(param.T) '_Nt' num2str(param.gen.Nt) '.mat']);
+% IMPORTANT NOTE: The channels have been multiplied by 100 (tx'd power=100mW)
 
 % Build the channel
 chuckSize = 50;
-channelGen(abs(channelGen)<sqrt(noiseVar)) = 0;
 vecAuxL = 1:chuckSize:size(channelGen,3);
 Ltrue = length(vecAuxL);
 data.channel = zeros(param.Nr,param.gen.Nt,Ltrue);
@@ -277,10 +277,6 @@ for it=itInit+1:param.Niter
     M_EST(it) = sum(sum(samples.seq~=0,2)>0);
     % Trace of the log-likelihood
     LLH(it) = compute_llh(data,samples,hyper,param);
-    % SER, ADER
-    if(it==param.Niter)
-        [ADER(it) SER_ALL(it) SER_ACT(it) MMSE(it) vec_ord rot] = compute_error_rates(data,samples,hyper,param);
-    end
     
     %% Save temporary result file
     if(mod(it,param.saveCycle)==0)
@@ -313,7 +309,7 @@ auxSample.Z = auxConstellation(auxIdx);
 auxSample.s2y = samples.s2y;
 [valnul auxSample.H] = sample_post_H(data,auxSample,hyper,param);
 
-[ADER(param.Niter+1) SER_ALL(param.Niter+1) SER_ACT(param.Niter+1) MMSE(param.Niter+1) vec_ord rot ADER_indiv SER_ALL_indiv SER_ACT_indiv MMSE_indiv] = compute_error_rates(data,auxSample,hyper,param);
+[ADER(param.Niter+1) SER_ALL(param.Niter+1) SER_ACT(param.Niter+1) MMSE(param.Niter+1) vec_ord rot desp ADER_indiv SER_ALL_indiv SER_ACT_indiv MMSE_indiv] = compute_error_rates_greedy(data,auxSample,hyper,param);
 LLH(param.Niter+1) = compute_llh(data,auxSample,hyper,param);
 M_EST(param.Niter+1) = sum(sum(auxSample.seq~=0,2)>0);
 
