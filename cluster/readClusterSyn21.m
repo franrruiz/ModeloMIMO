@@ -4,7 +4,7 @@ clc
 addpath aboxplot;
 
 maxItCluster = 50;
-Niter =  10000;
+Niter =  20000;
 maxNt = 20;
 
 %% Scenario definition
