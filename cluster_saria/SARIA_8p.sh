@@ -3,7 +3,7 @@ COMP="/opt/intel/composerxe/bin/compilervars.sh"
 ENV="/mydata/opt/matlab/matlab_env.sh" 
 
 export LD_PRELOAD=/opt/intel/composerxe/mkl/lib/intel64/libmkl_rt.so:/opt/intel/composerxe/lib/intel64/libiomp5.so
-export OMP_NUM_THREADS=5
+export OMP_NUM_THREADS=8
 
 if [ -f $COMP ];
 then
@@ -22,4 +22,4 @@ echo "Lanzando experimento:" $EXP
 # "LICENSE"
 #/mydata/opt/matlab/R2012b/bin/matlab -c /ABSOLUTE_PATH_TO_THE_LICENSE/license.dat -nodesktop < /ABSOLUTE_PATH_TO_YOUR_SCRIPTS_FOLDER/$EXP
 # NO LICENSE
-/mydata/opt/matlab/R2013b/bin/matlab -nojvm -nodesktop < /export/usuarios01/franrruiz87/simMIMO/$EXP
+/mydata/opt/matlab/matlab79/bin/matlab -nojvm -nodesktop < /export/usuarios01/franrruiz87/simMIMO/$EXP

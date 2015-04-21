@@ -124,7 +124,7 @@ param.infer.sampleVarH = 1;
 param.infer.simulatedTempering = 0;
 param.infer.addArtificialNoise = 1;
 param.artifNoise.itCycle = 1;
-param.artifNoise.stepDB = 0.0095;  % This goes from -12 to 121 in 14000 iterations
+param.artifNoise.stepDB = 0.002;  % This goes from -12 to 121 in 66500 iterations
 param.artifNoise.iniSNR = -12;
 param.artifNoise.finalSNR = SNR;
 param.bnp.betaSlice1 = 0.5;
@@ -260,7 +260,7 @@ for it=itInit+1:param.Niter
 
         % Step 5)
         % -Sample the channel H
-        samples.H = sample_post_H(data,samples,hyper,param);
+        samples.H = sample_post_H_saria(data,samples,hyper,param);
         % -Sample the noise variance
         samples.s2y = sample_post_s2y(data,samples,hyper,param);
         % -Sample the variance of the channel coefficients
