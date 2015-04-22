@@ -11,9 +11,9 @@ maxNt = 20;
 
 
 %%%%%%%%%%%%%%%
-plotToFile = 0;
+plotToFile = 1;
 flagPlotGenie = 1;
-thrSER = 0.2;
+thrSER = 0.1;
 %%%%%%%%%%%%%%%
 
 %Base scenario
@@ -31,20 +31,19 @@ MAX_Nt = 10;
 
 % Sweep and hold variables:
   % L = 1:
-  sweep_var = 'SNR'; sweep_vec = -12:3:3; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
-  %sweep_var = 'Nt'; sweep_vec = 2:2:10; simId = 21; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
+  %sweep_var = 'SNR'; sweep_vec = -12:3:0; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
   %sweep_var = 'Nt'; sweep_vec = 1:1:6; simId = 21; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
-  %sweep_var = 'Nr'; sweep_vec = [2:10 15:5:30]; simId = 21; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3;
+  %sweep_var = 'Nr'; sweep_vec = [2:2:10 15:5:30]; simId = 21; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3;
   %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 21; etiquetaX='log_2|A|'; lugar='SouthEast'; hold_var='SNR'; hold_vec=12; %Niter = 50000; %%% CUIDADO
 
   % L = 5:
   %sweep_var = 'SNR'; sweep_vec = -15:3:3; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5;
 
   % Sweep Ltrue:
-  %sweep_var = 'Ltrue'; sweep_vec = 1:2:7; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9;
+  sweep_var = 'Ltrue'; sweep_vec = 1:2:7; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9;
   
   % Sweep L:
-  %sweep_var = 'L'; sweep_vec = 1:1:3; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=1;
+  %sweep_var = 'L'; sweep_vec = 1:1:3; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=1; simId = 23;
 
 marcadores = {'+','^','o','x'};
 estilos = {'-','--',':','-.'};
@@ -462,6 +461,7 @@ for holdV=hold_vec
     xlabel(etiquetaX);
     set(gca,'XLim',[min(sweep_vec) max(sweep_vec)]);
     set(gca,'XTick',sweep_vec);
+    set(gca,'YLim',[10^floor(log10(min(avgADER))) 10^ceil(log10(max(avgADER)))]);
     if(simId==2 && strcmp(sweep_var,'SNR'))
         set(gca,'XTickLabel',sweep_vec-13);
     else
@@ -536,6 +536,7 @@ for holdV=hold_vec
     xlabel(etiquetaX);
     set(gca,'XLim',[min(sweep_vec) max(sweep_vec)]);
     set(gca,'XTick',sweep_vec);
+    set(gca,'YLim',[10^floor(log10(min(avgSER_ALL))) 10^ceil(log10(max(avgSER_ALL)))]);
     if(simId==2 && strcmp(sweep_var,'SNR'))
         set(gca,'XTickLabel',sweep_vec-13);
     else
@@ -586,6 +587,7 @@ for holdV=hold_vec
     xlabel(etiquetaX);
     set(gca,'XLim',[min(sweep_vec) max(sweep_vec)]);
     set(gca,'XTick',sweep_vec);
+    set(gca,'YLim',[10^floor(log10(min(avgMSE))) 10^ceil(log10(max(avgMSE)))]);
     if(simId==2 && strcmp(sweep_var,'SNR'))
         set(gca,'XTickLabel',sweep_vec-13);
     else
