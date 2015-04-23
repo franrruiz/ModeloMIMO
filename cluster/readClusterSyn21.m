@@ -659,7 +659,7 @@ for holdV=hold_vec
     boxplot(squeeze(ALL_RECOVERED),'whisker',inf);
     hold on;
     plot(1:length(sweep_vec),squeeze(mean(ALL_RECOVERED,1)),'o','Color',[1 0.4 1],'MarkerFaceColor',[1 0.4 1])
-    ylabel(['#Tx']);
+    ylabel('Recovered Tx');
     xlabel(etiquetaX);
     set(gca,'Xtick',1:length(sweep_vec));
     if(simId==2 && strcmp(sweep_var,'SNR'))
