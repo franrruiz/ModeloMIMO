@@ -31,19 +31,19 @@ MAX_Nt = 10;
 
 % Sweep and hold variables:
   % L = 1:
-  %sweep_var = 'SNR'; sweep_vec = -12:3:0; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20;
-  %sweep_var = 'Nt'; sweep_vec = 1:1:6; simId = 21; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3;
-  %sweep_var = 'Nr'; sweep_vec = [2:2:10 15:5:30]; simId = 21; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3;
-  %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 21; etiquetaX='log_2|A|'; lugar='SouthEast'; hold_var='SNR'; hold_vec=12; %Niter = 50000; %%% CUIDADO
+  %sweep_var = 'SNR'; sweep_vec = -12:3:0; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20; subcarpeta = 'L1/';
+  %sweep_var = 'Nt'; sweep_vec = 1:1:6; simId = 21; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3; subcarpeta = 'L1/';
+  %sweep_var = 'Nr'; sweep_vec = [2:2:10 15:5:30]; simId = 21; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3; subcarpeta = 'L1/';
+  %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 21; etiquetaX='log_2|A|'; lugar='SouthEast'; hold_var='SNR'; hold_vec=12; Niter = 100000; subcarpeta = 'L1/'; %%% CUIDADO
 
   % L = 5:
-  %sweep_var = 'SNR'; sweep_vec = -15:3:3; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5;
+  %sweep_var = 'SNR'; sweep_vec = -15:3:3; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5; subcarpeta = 'L5/';
 
   % Sweep Ltrue:
-  sweep_var = 'Ltrue'; sweep_vec = 1:2:7; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9;
+  sweep_var = 'Ltrue'; sweep_vec = 1:2:7; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9; subcarpeta = 'sweep_Ltrue/';
   
   % Sweep L:
-  %sweep_var = 'L'; sweep_vec = 1:1:3; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=1; simId = 23;
+  %sweep_var = 'L'; sweep_vec = 1:1:3; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=1; simId = 23; subcarpeta = 'sweep_L/';
 
 marcadores = {'+','^','o','x'};
 estilos = {'-','--',':','-.'};
@@ -524,9 +524,9 @@ for holdV=hold_vec
     end
     if(plotToFile)
         figurapdf(anchoSm,altoSm);
-        print('-dpdf',['./plots/syn21/ADER_' sweep_var '_s.pdf']);
+        print('-dpdf',['./plots/syn21/' subcarpeta 'ADER_' sweep_var '_s.pdf']);
         figurapdf(anchoLar,altoLar);
-        print('-dpdf',['./plots/syn21/ADER_' sweep_var '_g.pdf']);
+        print('-dpdf',['./plots/syn21/' subcarpeta 'ADER_' sweep_var '_g.pdf']);
     end
     
     % Plot SER_ALL
@@ -575,9 +575,9 @@ for holdV=hold_vec
     end
     if(plotToFile)
         figurapdf(anchoSm,altoSm);
-        print('-dpdf',['./plots/syn21/SER_' sweep_var '_s.pdf']);
+        print('-dpdf',['./plots/syn21/' subcarpeta 'SER_' sweep_var '_s.pdf']);
         figurapdf(anchoLar,altoLar);
-        print('-dpdf',['./plots/syn21/SER_' sweep_var '_g.pdf']);
+        print('-dpdf',['./plots/syn21/' subcarpeta 'SER_' sweep_var '_g.pdf']);
     end
     
     % Plot MSE
@@ -597,9 +597,9 @@ for holdV=hold_vec
     %legend(leyenda(1));
     if(plotToFile)
         figurapdf(anchoSm,altoSm);
-        print('-dpdf',['./plots/syn21/MSE_' sweep_var '_s.pdf']);
+        print('-dpdf',['./plots/syn21/' subcarpeta 'MSE_' sweep_var '_s.pdf']);
         figurapdf(anchoLar,altoLar);
-        print('-dpdf',['./plots/syn21/MSE_' sweep_var '_g.pdf']);
+        print('-dpdf',['./plots/syn21/' subcarpeta 'MSE_' sweep_var '_g.pdf']);
     end
     
     % Plot DEP
@@ -622,9 +622,9 @@ for holdV=hold_vec
     %legend(leyenda(1));
     if(plotToFile)
         figurapdf(anchoSm,altoSm);
-        print('-dpdf',['./plots/syn21/DEP_' sweep_var '_s.pdf']);
+        print('-dpdf',['./plots/syn21/' subcarpeta 'DEP_' sweep_var '_s.pdf']);
         figurapdf(anchoLar,altoLar);
-        print('-dpdf',['./plots/syn21/DEP_' sweep_var '_g.pdf']);
+        print('-dpdf',['./plots/syn21/' subcarpeta 'DEP_' sweep_var '_g.pdf']);
     end
     
     % Plot Boxplot
@@ -649,9 +649,9 @@ for holdV=hold_vec
     grid on;
     if(plotToFile)
         figurapdf(anchoSm,altoSm);
-        print('-dpdf',['./plots/syn21/BoxM_' sweep_var '_s.pdf']);
+        print('-dpdf',['./plots/syn21/' subcarpeta 'BoxM_' sweep_var '_s.pdf']);
         figurapdf(anchoLar,altoLar);
-        print('-dpdf',['./plots/syn21/BoxM_' sweep_var '_g.pdf']);
+        print('-dpdf',['./plots/syn21/' subcarpeta 'BoxM_' sweep_var '_g.pdf']);
     end
     
     % Plot Boxplot with #Recovered Cases
@@ -676,8 +676,8 @@ for holdV=hold_vec
     grid on;
     if(plotToFile)
         figurapdf(anchoSm,altoSm);
-        print('-dpdf',['./plots/syn21/BoxRecov_' sweep_var '_s.pdf']);
+        print('-dpdf',['./plots/syn21/' subcarpeta 'BoxRecov_' sweep_var '_s.pdf']);
         figurapdf(anchoLar,altoLar);
-        print('-dpdf',['./plots/syn21/BoxRecov_' sweep_var '_g.pdf']);
+        print('-dpdf',['./plots/syn21/' subcarpeta 'BoxRecov_' sweep_var '_g.pdf']);
     end
 end

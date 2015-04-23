@@ -67,7 +67,7 @@ ylabel('log-likelihood');
 set(gca,'YLim',[-8 -5.5]*1e4);
 if(plotToFile)
     figurapdf(4,3);  % Before: 3,2
-    print('-dpdf',['./plots/syn21/LLH_Npart_s.pdf']);
+    print('-dpdf',['./plots/syn21/Npart/LLH_Npart_s.pdf']);
 end
 
 %% Plot SER vs Npart
@@ -88,7 +88,7 @@ grid on;
 legend('IFFSM','PGAS','FFBS');
 if(plotToFile)
     figurapdf(4,3);  % Before: 3,2
-    print('-dpdf',['./plots/syn21/SER_Npart_s.pdf']);
+    print('-dpdf',['./plots/syn21/Npart/SER_Npart_s.pdf']);
 end
 
 %% Number of recovered transmitters
@@ -104,7 +104,7 @@ ylabel('Recovered Tx');
 legend('IFFSM','PGAS','FFBS','Location','EastOutside');
 if(plotToFile)
     figurapdf(7,3);  % Before: 3,2
-    print('-dpdf',['./plots/syn21/BoxRecov_Npart_s.pdf']);
+    print('-dpdf',['./plots/syn21/Npart/BoxRecov_Npart_s.pdf']);
 end
 
 %% M_EST
@@ -121,5 +121,5 @@ ylabel('M_+');
 %legend('IFFSM','PGAS','FFBS','Location','EastOutside');
 if(plotToFile)
     figurapdf(4,3);  % Before: 3,2
-    print('-dpdf',['./plots/syn21/Mest_Npart_s.pdf']);
+    print('-dpdf',['./plots/syn21/Npart/Mest_Npart_s.pdf']);
 end
