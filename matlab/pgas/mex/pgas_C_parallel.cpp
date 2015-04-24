@@ -302,14 +302,14 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
             } else {
                 // First, resampling the particles at t-1 (saves it in a_ind)
                 gsl_ran_discrete_t *auxTable = gsl_ran_discrete_preproc(N,W[t-1]);
-                #pragma omp parallel for
+                #pragma omp parallel for schedule(dynamic,200)
                 for(int n=0; n<N; n++) {
                     setint_2D(gsl_ran_discrete(semilla[omp_get_thread_num()],auxTable),a_ind,n,t,N,T);
                 }
                 gsl_ran_discrete_free(auxTable);
                 
                 // Second, propagate the particles from t-1 to t
-                #pragma omp parallel for private(nt)
+                #pragma omp parallel for private(nt) schedule(dynamic,200)
                 for(int n=0; n<N; n++) {
                     int prev;
                     for(int nt=0; nt<Nt; nt++) {
@@ -406,7 +406,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
             double *sumi = (double*)calloc(N*Nr,sizeof(double));
             double maxLogW = -INFINITY;
             if(flagComplex) {
-                #pragma omp parallel for private(nt) shared(maxLogW)
+                #pragma omp parallel for private(nt) shared(maxLogW) schedule(dynamic,10)
                 for(int n=0; n<N; n++) {
                     // For each particle, initialize some variables
                     int nCur = n;
@@ -445,7 +445,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
                 }
             // For non-complex constellations
             } else {
-                #pragma omp parallel for private(nt) shared(maxLogW)
+                #pragma omp parallel for private(nt) shared(maxLogW) schedule(dynamic,10)
                 for(int n=0; n<N; n++) {
                     // For each particle, initialize some variables
                     int nCur = n;
@@ -480,7 +480,7 @@ void mexFunction( int nlhs, mxArray* plhs[], int nrhs, const mxArray* prhs[] ) {
             }
             
             // Take the exponential of the weights
-            #pragma omp parallel for
+            #pragma omp parallel for schedule(dynamic,200)
             for(int n=0; n<N; n++) {
                 W[t][n] = my_exp(logW[t][n]-maxLogW);
             }
@@ -612,7 +612,7 @@ double *computeFactor1(int Nt, int Nr, int N, int t, int T, int L, int Q, double
             
             // For each particle, remove the contribution of ancestors to instant
             // tau and compute the likelihood (add it to logWY)
-            #pragma omp parallel for
+            #pragma omp parallel for schedule(dynamic,200)
             for(int n=0; n<N; n++) {
                 double val = 0;
                 double aux1;
@@ -652,7 +652,7 @@ double *computeFactor1(int Nt, int Nr, int N, int t, int T, int L, int Q, double
             
             // For each particle, remove the contribution of ancestors to instant
             // tau and compute the likelihood (add it to logWY)
-            #pragma omp parallel for
+            #pragma omp parallel for schedule(dynamic,200)
             for(int n=0; n<N; n++) {
                 double val = 0;
                 double aux1;
@@ -737,7 +737,7 @@ double *computeFactor2(int Nt, int N, int t, int T, int Q, double logQ_1, int *x
     double *logWZ = (double*)calloc(N,sizeof(double));
     
     // For each particle, sum the log-transition probability of each transmitter
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic,200)
     for(int n=0; n<N; n++) {
         int prev;
         int curr;
