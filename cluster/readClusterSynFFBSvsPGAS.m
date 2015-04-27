@@ -12,7 +12,7 @@ T = 500;
 Nt = 5;
 Nr = 10;
 M = 2;
-SNR = -9.0309;  % Change this!!
+SNR = 0;
 lHead = 0;
 onOffModel = 0;
 Nparticles = 3000;
@@ -20,7 +20,7 @@ simId = 22;   % simId=22 for these experiments
 
 maxNiter = 10000;
 thrSER = 0.1;
-L_vec = 1:4;
+L_vec = 1:3;
 
 %% Vary the number of particles
 ALL_BOXREC = zeros(maxItCluster,length(L_vec));
@@ -73,7 +73,7 @@ boxAUX = cat(1,permute(ALL_BOXREC_FFBS,[3 1 2]),permute(ALL_BOXREC,[3 1 2]));
 aboxplot(boxAUX,'labels',L_vec);
 hold on;
 set(gca,'FontSize',14);
-legend('FFBS','PGAS','Location','NorthWest');
+legend('FFBS','PGAS','Location','SouthWest');
 xlabel('L');
 ylabel('Recovered Tx');
 hold on;

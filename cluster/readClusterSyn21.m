@@ -33,22 +33,22 @@ MAX_Nt = 10;
   % L = 1:
   %sweep_var = 'SNR'; sweep_vec = -12:3:0; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20; subcarpeta = 'L1/';
   %sweep_var = 'Nt'; sweep_vec = 2:1:6; simId = 21; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3; subcarpeta = 'L1/';
-  sweep_var = 'Nr'; sweep_vec = [2:2:10 15:5:30]; simId = 21; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3; subcarpeta = 'L1/';
+  %sweep_var = 'Nr'; sweep_vec = [2:2:10 15:5:30]; simId = 21; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3; subcarpeta = 'L1/';
   %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 21; etiquetaX='log_2|A|'; lugar='SouthEast'; hold_var='SNR'; hold_vec=12; Niter = 100000; subcarpeta = 'L1/'; %%% CUIDADO
 
   % L = 5:
-  %sweep_var = 'SNR'; sweep_vec = -15:3:3; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5; subcarpeta = 'L5/';
+  %sweep_var = 'SNR'; sweep_vec = -15:3:0; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5; subcarpeta = 'L5/';
 
   % Sweep Ltrue:
-  %sweep_var = 'Ltrue'; sweep_vec = 1:2:7; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9; subcarpeta = 'sweep_Ltrue/';
+  sweep_var = 'Ltrue'; sweep_vec = 1:2:7; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9; subcarpeta = 'sweep_Ltrue/';
   
   % Sweep L:
-  %sweep_var = 'L'; sweep_vec = 1:1:3; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=1; simId = 23; subcarpeta = 'sweep_L/';
+  %sweep_var = 'L'; sweep_vec = 1:1:4; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=1; simId = 23; subcarpeta = 'sweep_L/';
 
 marcadores = {'+','^','o','x'};
 estilos = {'-','--',':','-.'};
 colores = {'m','b','k','r'};
-leyenda = {'IFFSM','PGAS','BCJR','FFBS'};
+leyenda = {'IFFSM','G-PGAS','G-BCJR','G-FFBS'};
 anchoSm = 4; altoSm = 3;  % Before: 3,2
 anchoLar = 5; altoLar = 3.5;
 
@@ -167,12 +167,12 @@ for sweepV=sweep_vec
                 clear ADER_PGAS4 ADER_BCJR4 ADER_FFBS4
                 load(saveFile,'ADER','MMSE','SER_ACT','SER_ALL','LLH','M_EST','*_indiv','*_PGAS4','*_BCJR4','*_FFBS4');
                 
-                ALL_ADER(itCluster,:,idxSweep,idxHold) = ADER;
-                ALL_MMSE(itCluster,:,idxSweep,idxHold) = MMSE;
-                ALL_LLH(itCluster,:,idxSweep,idxHold) = LLH;
-                ALL_SER_ALL(itCluster,:,idxSweep,idxHold) = SER_ALL;
-                ALL_SER_ACT(itCluster,:,idxSweep,idxHold) = SER_ACT;
-                ALL_MEST(itCluster,:,idxSweep,idxHold) = M_EST;
+                ALL_ADER(itCluster,end,idxSweep,idxHold) = ADER(end);
+                ALL_MMSE(itCluster,end,idxSweep,idxHold) = MMSE(end);
+                ALL_LLH(itCluster,end,idxSweep,idxHold) = LLH(end);
+                ALL_SER_ALL(itCluster,end,idxSweep,idxHold) = SER_ALL(end);
+                ALL_SER_ACT(itCluster,end,idxSweep,idxHold) = SER_ACT(end);
+                ALL_MEST(itCluster,end,idxSweep,idxHold) = M_EST(end);
                 ALL_RECOVERED(itCluster,1,idxSweep,idxHold) = sum(SER_ALL_indiv<thrSER);
                 
                 ALL_ADER_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_indiv;
@@ -461,7 +461,7 @@ for holdV=hold_vec
     xlabel(etiquetaX);
     set(gca,'XLim',[min(sweep_vec) max(sweep_vec)]);
     set(gca,'XTick',sweep_vec);
-    set(gca,'YLim',[10^floor(log10(min(avgADER))) 10^ceil(log10(max(avgADER)))]);
+    set(gca,'YLim',[10^floor(log10(min(avgADER(avgADER>0)))) 10^ceil(log10(max(avgADER)))]);
     if(simId==2 && strcmp(sweep_var,'SNR'))
         set(gca,'XTickLabel',sweep_vec-13);
     else
@@ -534,7 +534,7 @@ for holdV=hold_vec
     xlabel(etiquetaX);
     set(gca,'XLim',[min(sweep_vec) max(sweep_vec)]);
     set(gca,'XTick',sweep_vec);
-    set(gca,'YLim',[10^floor(log10(min(avgSER_ALL))) 10^ceil(log10(max(avgSER_ALL)))]);
+    set(gca,'YLim',[10^floor(log10(min(avgSER_ALL(avgSER_ALL>0)))) 10^ceil(log10(max(avgSER_ALL)))]);
     if(simId==2 && strcmp(sweep_var,'SNR'))
         set(gca,'XTickLabel',sweep_vec-13);
     else
@@ -583,7 +583,7 @@ for holdV=hold_vec
     xlabel(etiquetaX);
     set(gca,'XLim',[min(sweep_vec) max(sweep_vec)]);
     set(gca,'XTick',sweep_vec);
-    set(gca,'YLim',[10^floor(log10(min(avgMSE))) 10^ceil(log10(max(avgMSE)))]);
+    set(gca,'YLim',[10^floor(log10(min(avgMSE(avgMSE>0)))) 10^ceil(log10(max(avgMSE)))]);
     if(simId==2 && strcmp(sweep_var,'SNR'))
         set(gca,'XTickLabel',sweep_vec-13);
     else
