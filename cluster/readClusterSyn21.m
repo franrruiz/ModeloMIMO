@@ -37,7 +37,7 @@ MAX_Nt = 10;
   %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 21; etiquetaX='log_2|A|'; lugar='SouthEast'; hold_var='SNR'; hold_vec=12; Niter = 100000; subcarpeta = 'L1/'; %%% CUIDADO
 
   % L = 5:
-  %sweep_var = 'SNR'; sweep_vec = -15:3:0; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5; subcarpeta = 'L5/';
+  %sweep_var = 'SNR'; sweep_vec = -15:3:-3; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5; subcarpeta = 'L5/';
 
   % Sweep Ltrue:
   sweep_var = 'Ltrue'; sweep_vec = 1:2:7; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9; subcarpeta = 'sweep_Ltrue/';
@@ -461,7 +461,8 @@ for holdV=hold_vec
     xlabel(etiquetaX);
     set(gca,'XLim',[min(sweep_vec) max(sweep_vec)]);
     set(gca,'XTick',sweep_vec);
-    set(gca,'YLim',[10^floor(log10(min(avgADER(avgADER>0)))) 10^ceil(log10(max(avgADER)))]);
+    vecmin = [avgADER avgADER_PGAS];
+    set(gca,'YLim',[10^floor(log10(min(vecmin(vecmin>0)))) 10^ceil(log10(max(vecmin)))]);
     if(simId==2 && strcmp(sweep_var,'SNR'))
         set(gca,'XTickLabel',sweep_vec-13);
     else
@@ -534,7 +535,8 @@ for holdV=hold_vec
     xlabel(etiquetaX);
     set(gca,'XLim',[min(sweep_vec) max(sweep_vec)]);
     set(gca,'XTick',sweep_vec);
-    set(gca,'YLim',[10^floor(log10(min(avgSER_ALL(avgSER_ALL>0)))) 10^ceil(log10(max(avgSER_ALL)))]);
+    vecmin = [avgSER_ALL avgSER_ALL_PGAS];
+    set(gca,'YLim',[10^floor(log10(min(vecmin(vecmin>0)))) 10^ceil(log10(max(vecmin)))]);
     if(simId==2 && strcmp(sweep_var,'SNR'))
         set(gca,'XTickLabel',sweep_vec-13);
     else

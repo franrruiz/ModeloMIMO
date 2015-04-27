@@ -85,7 +85,7 @@ set(gca,'XScale','log');
 xlabel('Number of particles');
 ylabel('SER');
 grid on;
-legend('IFFSM','PGAS','FFBS');
+legend('IFFSM','G-PGAS','G-FFBS');
 if(plotToFile)
     figurapdf(4,3);  % Before: 3,2
     print('-dpdf',['./plots/syn21/Npart/SER_Npart_s.pdf']);
@@ -101,7 +101,7 @@ set(gca,'XTickLabel',part_vec);
 set(gca,'YLim',[0 11]);
 xlabel('Number of particles');
 ylabel('Recovered Tx');
-legend('IFFSM','PGAS','FFBS','Location','EastOutside');
+legend('IFFSM','G-PGAS','G-FFBS','Location','EastOutside');
 if(plotToFile)
     figurapdf(7,3);  % Before: 3,2
     print('-dpdf',['./plots/syn21/Npart/BoxRecov_Npart_s.pdf']);
