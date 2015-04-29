@@ -75,7 +75,7 @@ hold on;
 set(gca,'FontSize',14);
 legend('FFBS','PGAS','Location','SouthWest');
 xlabel('L');
-ylabel('Recovered Tx');
+ylabel('Recovered Chains');
 hold on;
 set(gca,'yLim',[min(boxAUX(:))-0.5,max(boxAUX(:))+0.5]);
 set(gca,'YGrid','on');

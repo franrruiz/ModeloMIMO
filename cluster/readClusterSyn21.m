@@ -34,16 +34,16 @@ MAX_Nt = 10;
   %sweep_var = 'SNR'; sweep_vec = -12:3:0; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20; subcarpeta = 'L1/';
   %sweep_var = 'Nt'; sweep_vec = 2:1:6; simId = 21; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3; subcarpeta = 'L1/';
   %sweep_var = 'Nr'; sweep_vec = [2:2:10 15:5:30]; simId = 21; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3; subcarpeta = 'L1/';
-  %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 21; etiquetaX='log_2|A|'; lugar='SouthEast'; hold_var='SNR'; hold_vec=12; Niter = 100000; subcarpeta = 'L1/'; %%% CUIDADO
+  sweep_var = 'M'; sweep_vec = 2:1:7; simId = 21; etiquetaX='log_2|A|'; lugar='SouthEast'; hold_var='SNR'; hold_vec=12; subcarpeta = 'L1/';
 
   % L = 5:
   %sweep_var = 'SNR'; sweep_vec = -15:3:-3; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5; subcarpeta = 'L5/';
 
   % Sweep Ltrue:
-  sweep_var = 'Ltrue'; sweep_vec = 1:2:7; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9; subcarpeta = 'sweep_Ltrue/';
+  %sweep_var = 'Ltrue'; sweep_vec = 1:2:7; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9; subcarpeta = 'sweep_Ltrue/';
   
   % Sweep L:
-  %sweep_var = 'L'; sweep_vec = 1:1:4; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=1; simId = 23; subcarpeta = 'sweep_L/';
+  %sweep_var = 'L'; sweep_vec = 1:1:5; simId = 23; etiquetaX='L'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=1; simId = 23; subcarpeta = 'sweep_L/';
 
 marcadores = {'+','^','o','x'};
 estilos = {'-','--',':','-.'};
@@ -166,6 +166,10 @@ for sweepV=sweep_vec
             if(exist(saveFile,'file'))
                 clear ADER_PGAS4 ADER_BCJR4 ADER_FFBS4
                 load(saveFile,'ADER','MMSE','SER_ACT','SER_ALL','LLH','M_EST','*_indiv','*_PGAS4','*_BCJR4','*_FFBS4');
+                ADER_indiv = ADER_indiv(1:Ntaux);
+                SER_ALL_indiv = SER_ALL_indiv(1:Ntaux);
+                SER_ACT_indiv = SER_ACT_indiv(1:Ntaux);
+                MMSE_indiv = MMSE_indiv(1:Ntaux);
                 
                 ALL_ADER(itCluster,end,idxSweep,idxHold) = ADER(end);
                 ALL_MMSE(itCluster,end,idxSweep,idxHold) = MMSE(end);
@@ -186,9 +190,9 @@ for sweepV=sweep_vec
                     ALL_SER_ACT_PGAS(itCluster,1,idxSweep,idxHold) = SER_ACT_PGAS4;
                     ALL_MMSE_PGAS(itCluster,1,idxSweep,idxHold) = MMSE_PGAS4;
                     
-                    ALL_ADER_PGAS_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_PGAS4_indiv;
-                    ALL_SER_ALL_PGAS_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_PGAS4_indiv;
-                    ALL_SER_ACT_PGAS_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_PGAS4_indiv;
+                    ALL_ADER_PGAS_indiv(itCluster,1:length(ADER_PGAS4_indiv),idxSweep,idxHold) = ADER_PGAS4_indiv;
+                    ALL_SER_ALL_PGAS_indiv(itCluster,1:length(SER_ALL_PGAS4_indiv),idxSweep,idxHold) = SER_ALL_PGAS4_indiv;
+                    ALL_SER_ACT_PGAS_indiv(itCluster,1:length(SER_ACT_PGAS4_indiv),idxSweep,idxHold) = SER_ACT_PGAS4_indiv;
                 end
                 if(exist('ADER_BCJR4','var'))
                     ALL_ADER_BCJR(itCluster,1,idxSweep,idxHold) = ADER_BCJR4;
@@ -196,9 +200,9 @@ for sweepV=sweep_vec
                     ALL_SER_ACT_BCJR(itCluster,1,idxSweep,idxHold) = SER_ACT_BCJR4;
                     ALL_MMSE_BCJR(itCluster,1,idxSweep,idxHold) = MMSE_BCJR4;
                     
-                    ALL_ADER_BCJR_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_BCJR4_indiv;
-                    ALL_SER_ALL_BCJR_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_BCJR4_indiv;
-                    ALL_SER_ACT_BCJR_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_BCJR4_indiv;
+                    ALL_ADER_BCJR_indiv(itCluster,1:length(ADER_BCJR4_indiv),idxSweep,idxHold) = ADER_BCJR4_indiv;
+                    ALL_SER_ALL_BCJR_indiv(itCluster,1:length(SER_ALL_BCJR4_indiv),idxSweep,idxHold) = SER_ALL_BCJR4_indiv;
+                    ALL_SER_ACT_BCJR_indiv(itCluster,1:length(SER_ACT_BCJR4_indiv),idxSweep,idxHold) = SER_ACT_BCJR4_indiv;
                 end
                 if(exist('ADER_FFBS4','var'))
                     ALL_ADER_FFBS(itCluster,1,idxSweep,idxHold) = ADER_FFBS4;
@@ -206,9 +210,9 @@ for sweepV=sweep_vec
                     ALL_SER_ACT_FFBS(itCluster,1,idxSweep,idxHold) = SER_ACT_FFBS4;
                     ALL_MMSE_FFBS(itCluster,1,idxSweep,idxHold) = MMSE_FFBS4;
                     
-                    ALL_ADER_FFBS_indiv(itCluster,1:length(ADER_indiv),idxSweep,idxHold) = ADER_FFBS4_indiv;
-                    ALL_SER_ALL_FFBS_indiv(itCluster,1:length(SER_ALL_indiv),idxSweep,idxHold) = SER_ALL_FFBS4_indiv;
-                    ALL_SER_ACT_FFBS_indiv(itCluster,1:length(SER_ACT_indiv),idxSweep,idxHold) = SER_ACT_FFBS4_indiv;
+                    ALL_ADER_FFBS_indiv(itCluster,1:length(ADER_FFBS4_indiv),idxSweep,idxHold) = ADER_FFBS4_indiv;
+                    ALL_SER_ALL_FFBS_indiv(itCluster,1:length(SER_ALL_FFBS4_indiv),idxSweep,idxHold) = SER_ALL_FFBS4_indiv;
+                    ALL_SER_ACT_FFBS_indiv(itCluster,1:length(SER_ACT_FFBS4_indiv),idxSweep,idxHold) = SER_ACT_FFBS4_indiv;
                 end
             else
                 idxItClusterNotFound = unique([idxItClusterNotFound itCluster]);
