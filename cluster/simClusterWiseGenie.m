@@ -1,4 +1,4 @@
-function simClusterWiseGenie(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,Nparticles,flagParallel,itCluster,simId)
+function simClusterWiseGenie(T,Nt,Nr,M,Niter,lHead,onOffModel,Nparticles,flagParallel,itCluster,simId)
 % 
 % Initially, it created variables ADER_PGAS, ADER_BCJR, etc.
 % It was computed with am=0.95, bm=0.05
@@ -11,6 +11,8 @@ function simClusterWiseGenie(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,Nparti
 % More importantly, variables ending in "2" had been computed in a wrong
 % way, they should be ignored and replaced with variables ending in "3"
 % 
+% Variables ending in "4" have am=(T-1001)/(T-1000) and bm=1/1000
+% 
 
 addpath(genpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab'));
 
@@ -18,7 +20,7 @@ randn('seed',round(sum(1e5*clock)+itCluster));
 rand('seed',round(sum(1e5*clock)+itCluster));
 
 saveFolder = ['/export/clusterdata/franrruiz87/ModeloMIMO/results/wise/' num2str(simId) ...
-              '/T' num2str(T) '_Nt' num2str(Nt) '_Nr' num2str(Nr) '_M' num2str(M) '_Ltrue' num2str(Ltrue) '_L' num2str(L) '_SNR' num2str(SNR) '_lHead' num2str(lHead), '_onOff' num2str(onOffModel) '_Npart' num2str(Nparticles)];
+              '/T' num2str(T) '_Nt' num2str(Nt) '_Nr' num2str(Nr) '_M' num2str(M) '_L' num2str(L) '_lHead' num2str(lHead), '_onOff' num2str(onOffModel) '_Npart' num2str(Nparticles)];
 saveFile = [saveFolder '/itCluster' num2str(itCluster)];
 saveTmpFolder = [saveFile '/genie'];
 
@@ -44,6 +46,7 @@ M = 2^M;
 param.constellation = qammod(0:M-1,M,[],'gray');
 param.constellation = param.constellation/sqrt(mean(abs(param.constellation.^2)));
 param.flag0 = 1;    % Consider symbol 0 as part of the constellation (if false, transmitters are always active)
+Ltrue = size(data.channel,3);
 param.L = Ltrue;        % Channel memory to be considered during inference
 param.Niter = Niter;  % Number of iterations of the sampler
 param.saveCycle = 200;
@@ -52,7 +55,8 @@ param.header = [];
 param.onOffModel = 0;
 
 %% Choose noiseVar
-noiseVar = 10^(-SNR/10);
+noiseVar = 7.962143411069940e-13;    % This was obtained with Tsmp=1/40e6
+SNR = -10*log10(noiseVar);
 if(log2(M)==1)
     noiseVar = 2*noiseVar;
 end
@@ -87,8 +91,8 @@ while(it<=param.Niter)
 end
 
 %% Configuration parameters for BCJR, PGAS, EP, FFBS and collapsed Gibbs
-param.bcjr.p1 = 0.995;
-param.bcjr.p2 = 0.005;
+param.bcjr.p1 = (param.T-1001)/(param.T-1000);
+param.bcjr.p2 = 1/1000;
 param.pgas.N_PF = Nparticles;
 param.pgas.N_PG = Nparticles;
 param.pgas.Niter = 1;

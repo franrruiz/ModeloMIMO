@@ -214,6 +214,11 @@ for it=itInit+1:param.Niter
     %% Algorithm
     
     % Step 0a) Add artificial noise
+    if(it<=20000)
+        param.artifNoise.stepDB = 0.002;
+    else
+        param.artifNoise.stepDB = 0.0113;
+    end
     if(param.infer.addArtificialNoise)
         if(it==1)
             [data.obsWithoutNoise data.obs data.artifNoise samples.s2y] = artifNoise_init(data,samples,hyper,param);
