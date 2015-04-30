@@ -36,7 +36,7 @@ param.header = ones(1,lHead);
 param.onOffModel = onOffModel;
 
 %% Load data
-noiseVar = 7.962143411069940e-13;    % This was obtained with Tsmp=1/40e6
+noiseVar = 7.962143411069940e-13*1e4;    % This was obtained with Tsmp=1/40e6
 SNR = -10*log10(noiseVar);
 if(log2(M)==1)
     noiseVar = 2*noiseVar;
@@ -217,7 +217,7 @@ for it=itInit+1:param.Niter
     if(it<=20000)
         param.artifNoise.stepDB = 0.002;
     else
-        param.artifNoise.stepDB = 0.0113;
+        param.artifNoise.stepDB = 0.008;
     end
     if(param.infer.addArtificialNoise)
         if(it==1)
