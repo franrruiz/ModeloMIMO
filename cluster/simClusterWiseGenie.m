@@ -24,18 +24,22 @@ saveFolder = ['/export/clusterdata/franrruiz87/ModeloMIMO/results/wise/' num2str
 saveFile = [saveFolder '/itCluster' num2str(itCluster)];
 saveTmpFolder = [saveFile '/genie'];
 
-% Exit if BNP+PGAS has not finished yet
-if(~exist([saveFile '.mat'],'file'))
-    return;
-end
-% Load data
-load([saveFile '.mat'],'data','ADER_PGAS3');
-% Exit if this simulation already run
-if(exist('ADER_PGAS3','var'))
-    return;
+%% Exit if simulation already run
+if(exist([saveFile '.mat'],'file'))
+    load([saveFile '.mat'],'ADER_PGAS4');
+    if(exist('ADER_PGAS4','var'))
+        return;
+    end
 end
 if(~isdir(saveTmpFolder))
     mkdir(saveTmpFolder);
+end
+
+%% Choose noiseVar
+noiseVar = 7.962143411069940e-13*1e4;    % This was obtained with Tsmp=1/40e6
+SNR = -10*log10(noiseVar);
+if(log2(M)==1)
+    noiseVar = 2*noiseVar;
 end
 
 %% Configuration parameters
@@ -46,7 +50,6 @@ M = 2^M;
 param.constellation = qammod(0:M-1,M,[],'gray');
 param.constellation = param.constellation/sqrt(mean(abs(param.constellation.^2)));
 param.flag0 = 1;    % Consider symbol 0 as part of the constellation (if false, transmitters are always active)
-Ltrue = size(data.channel,3);
 param.L = L;        % Channel memory to be considered during inference
 param.Niter = Niter;  % Number of iterations of the sampler
 param.saveCycle = 200;
@@ -54,12 +57,66 @@ param.storeIters = round(Niter/5);
 param.header = [];
 param.onOffModel = 0;
 
-%% Choose noiseVar
-noiseVar = 7.962143411069940e-13*1e4;    % This was obtained with Tsmp=1/40e6
-SNR = -10*log10(noiseVar);
+param.gen.s2n = noiseVar;
+param.gen.varH = 1;
 if(log2(M)==1)
-    noiseVar = 2*noiseVar;
+    param.gen.varH = 2*param.gen.varH;
 end
+param.gen.Nt = Nt;
+param.gen.burstLength = round(T/2)*ones(1,param.gen.Nt);
+param.gen.burstLengthStdFactor = inf;
+param.gen.symbol0 = 0;
+param.gen.sparsityH = 0;
+
+%% Load data
+if(simId==2)
+    hohChar = 'B';
+elseif(simId==3)
+    hohChar = 'C';
+else
+    error('Wrong value of simId');
+end
+load(['/export/clusterdata/franrruiz87/ModeloMIMO/data/WISEdata/preprocessed/hoh' hohChar '/T' num2str(T) '_Nt' num2str(Nt) '.mat']);
+
+% Build the channel
+chuckSize = 50;
+vecAuxL = 1:chuckSize:size(channelGen,3);
+Ltrue = length(vecAuxL);
+data.channel = zeros(param.Nr,param.gen.Nt,Ltrue);
+param.gen.L_true = Ltrue*ones(1,param.gen.Nt);   % Configure the true channel length
+for ll=1:length(vecAuxL)
+    if(ll==length(vecAuxL))
+        channelHaux = channelGen(:,:,vecAuxL(ll):size(channelGen,3));
+    else
+        channelHaux = channelGen(:,:,vecAuxL(ll):vecAuxL(ll+1)-1);
+    end
+    data.channel(:,:,ll) = sum(channelHaux,3);
+end
+
+% Build the observations
+data.symbols = symbolsGen{log2(M)};
+data.seq = seqGen{log2(M)};
+data.obs = zeros(param.Nr,param.T);
+
+noise = sqrt(param.gen.s2n/2)*noiseGen;
+if(log2(M)==1)
+    data.symbols = real(data.symbols);
+    noise = real(noise);
+    data.channel = real(data.channel);
+end
+for t=1:param.T
+    for i=0:max(param.gen.L_true)-1
+        if(t-i<=0)
+            data.obs(:,t) = data.obs(:,t) + data.channel(:,:,i+1)*param.gen.symbol0*ones(param.gen.Nt,1);
+        else
+            data.obs(:,t) = data.obs(:,t) + data.channel(:,:,i+1)*data.symbols(:,t-i);
+        end
+    end
+end
+data.obs = data.obs+noise;
+
+%% Clear unused variables
+clear channelGen symbolsGen seqGen channelHaux noiseGen
 
 %% Check if there are temporary files to be loaded
 flagRecovered = 0;
@@ -190,36 +247,36 @@ end
 auxConstellation = [0 param.constellation];
 auxSamplePGAS.seq = auxIdx-1;
 auxSamplePGAS.Z = auxConstellation(auxIdx);
-[ADER_PGAS3 SER_ALL_PGAS3 SER_ACT_PGAS3 MMSE_PGAS3 vec_ord rot ADER_PGAS3_indiv SER_ALL_PGAS3_indiv SER_ACT_PGAS3_indiv MMSE_PGAS3_indiv] = ...
+[ADER_PGAS4 SER_ALL_PGAS4 SER_ACT_PGAS4 MMSE_PGAS4 vec_ord rot ADER_PGAS4_indiv SER_ALL_PGAS4_indiv SER_ACT_PGAS4_indiv MMSE_PGAS4_indiv] = ...
     compute_error_rates_genie(data,auxSamplePGAS,hyper,param);
 
 %% Performance of FFBS
-ADER_FFBS3 = NaN;
-SER_ALL_FFBS3 = NaN;
-SER_ACT_FFBS3 = NaN;
-MMSE_FFBS3 = NaN;
-ADER_FFBS3_indiv = NaN;
-SER_ALL_FFBS3_indiv = NaN;
-SER_ACT_FFBS3_indiv = NaN;
-MMSE_FFBS3_indiv = NaN;
+ADER_FFBS4 = NaN;
+SER_ALL_FFBS4 = NaN;
+SER_ACT_FFBS4 = NaN;
+MMSE_FFBS4 = NaN;
+ADER_FFBS4_indiv = NaN;
+SER_ALL_FFBS4_indiv = NaN;
+SER_ACT_FFBS4_indiv = NaN;
+MMSE_FFBS4_indiv = NaN;
 if((length(param.constellation)+1)^(2*param.L)<1e6)
     [valnul auxIdx] = max(ZauxFFBS,[],3);
     auxConstellation = [0 param.constellation];
     auxSampleFFBS.seq = auxIdx-1;
     auxSampleFFBS.Z = auxConstellation(auxIdx);
-    [ADER_FFBS3 SER_ALL_FFBS3 SER_ACT_FFBS3 MMSE_FFBS3 vec_ord rot ADER_FFBS3_indiv SER_ALL_FFBS3_indiv SER_ACT_FFBS3_indiv MMSE_FFBS3_indiv] = ...
+    [ADER_FFBS4 SER_ALL_FFBS4 SER_ACT_FFBS4 MMSE_FFBS4 vec_ord rot ADER_FFBS4_indiv SER_ALL_FFBS4_indiv SER_ACT_FFBS4_indiv MMSE_FFBS4_indiv] = ...
         compute_error_rates_genie(data,auxSampleFFBS,hyper,param);
 end
 
 %% Inference using BCJR
-ADER_BCJR3 = NaN;
-SER_ALL_BCJR3 = NaN;
-SER_ACT_BCJR3 = NaN;
-MMSE_BCJR3 = NaN;
-ADER_BCJR3_indiv = NaN;
-SER_ALL_BCJR3_indiv = NaN;
-SER_ACT_BCJR3_indiv = NaN;
-MMSE_BCJR3_indiv = NaN;
+ADER_BCJR4 = NaN;
+SER_ALL_BCJR4 = NaN;
+SER_ACT_BCJR4 = NaN;
+MMSE_BCJR4 = NaN;
+ADER_BCJR4_indiv = NaN;
+SER_ALL_BCJR4_indiv = NaN;
+SER_ACT_BCJR4_indiv = NaN;
+MMSE_BCJR4_indiv = NaN;
 if((length(auxConstellation)^(2*param.L*param.bnp.Mini)<1e6))
     auxSample = samplesPGAS;
     [auxSample.Z qt_red Simb_red] = bcjr_main(data,samplesPGAS,hyper,param);
@@ -228,15 +285,15 @@ if((length(auxConstellation)^(2*param.L*param.bnp.Mini)<1e6))
         idx = (abs(auxSample.Z-auxConstellation(q))<min(abs(param.constellation))/10);
         auxSample.seq(idx) = q-1;
     end
-    [ADER_BCJR3 SER_ALL_BCJR3 SER_ACT_BCJR3 MMSE_BCJR3 vec_ord rot ADER_BCJR3_indiv SER_ALL_BCJR3_indiv SER_ACT_BCJR3_indiv MMSE_BCJR3_indiv] = ...
+    [ADER_BCJR4 SER_ALL_BCJR4 SER_ACT_BCJR4 MMSE_BCJR4 vec_ord rot ADER_BCJR4_indiv SER_ALL_BCJR4_indiv SER_ACT_BCJR4_indiv MMSE_BCJR4_indiv] = ...
         compute_error_rates_genie(data,auxSample,hyper,param);
 end
 
 %% Save results
-save([saveFile '.mat'],'ADER_PGAS3','SER_ALL_PGAS3','SER_ACT_PGAS3','MMSE_PGAS3',...
-                       'ADER_FFBS3','SER_ALL_FFBS3','SER_ACT_FFBS3','MMSE_FFBS3',...
-                       'ADER_BCJR3','SER_ALL_BCJR3','SER_ACT_BCJR3','MMSE_BCJR3',...
-                       '*3_indiv',...
+save([saveFile '.mat'],'ADER_PGAS4','SER_ALL_PGAS4','SER_ACT_PGAS4','MMSE_PGAS4',...
+                       'ADER_FFBS4','SER_ALL_FFBS4','SER_ACT_FFBS4','MMSE_FFBS4',...
+                       'ADER_BCJR4','SER_ALL_BCJR4','SER_ACT_BCJR4','MMSE_BCJR4',...
+                       '*4_indiv',...
                        '-append');
                    
 %% If successfully saved, detele previous temporary file
