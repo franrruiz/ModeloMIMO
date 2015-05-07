@@ -11,7 +11,7 @@ maxNt = 20;
 
 
 %%%%%%%%%%%%%%%
-plotToFile = 1;
+plotToFile = 0;
 flagPlotGenie = 1;
 thrSER = 0.1;
 %%%%%%%%%%%%%%%
@@ -40,10 +40,10 @@ MAX_Nt = 10;
   %sweep_var = 'SNR'; sweep_vec = -15:3:-3; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5; subcarpeta = 'L5/';
 
   % Sweep Ltrue:
-  %sweep_var = 'Ltrue'; sweep_vec = 1:2:7; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9; subcarpeta = 'sweep_Ltrue/';
+  sweep_var = 'Ltrue'; sweep_vec = 1:1:6; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9; subcarpeta = 'sweep_Ltrue/';
   
   % Sweep L:
-  sweep_var = 'L'; sweep_vec = 1:1:5; simId = 23; etiquetaX='L'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=1; simId = 23; subcarpeta = 'sweep_L/';
+  %sweep_var = 'L'; sweep_vec = 1:1:5; simId = 23; etiquetaX='L'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=1; simId = 23; subcarpeta = 'sweep_L/';
 
 marcadores = {'+','^','o','x'};
 estilos = {'-','--',':','-.'};
