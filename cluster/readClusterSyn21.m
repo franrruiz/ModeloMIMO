@@ -11,7 +11,7 @@ maxNt = 20;
 
 
 %%%%%%%%%%%%%%%
-plotToFile = 0;
+plotToFile = 1;
 flagPlotGenie = 1;
 thrSER = 0.1;
 %%%%%%%%%%%%%%%
