@@ -1,7 +1,7 @@
 clear all;
 close all;
 
-plotToFile = 0;
+plotToFile = 1;
 
 hohChar = 'C';
 L_vec = 1:5;
@@ -124,6 +124,8 @@ end
 %% Boxplot
 figure;
 bar(L_vec,ALL_MEST');
+hold on;
+plot(L_vec,6*ones(size(L_vec)),'p','Color',[0 0.5 0],'MarkerFaceColor',[0 0.5 0],'MarkerSize',9);
 set(gca,'FontSize',14);
 legend('iFDM','iFHMM','Location','NorthEast');
 xlabel('L');
@@ -134,6 +136,19 @@ if(plotToFile)
     print('-dpdf',['CommMestNIPS.pdf']);
 end
 
-
+%% Boxplot for TCNN
+figure;
+bar(L_vec,ALL_MEST');
+hold on;
+plot(L_vec,6*ones(size(L_vec)),'p','Color',[0 0.5 0],'MarkerFaceColor',[0 0.5 0],'MarkerSize',9);
+set(gca,'FontSize',14);
+legend('IFFSM','IFHMM','Location','NorthEast');
+xlabel('L');
+ylabel('M_+');
+grid on;
+if(plotToFile)
+    figurapdf(4.5,3);  % Before: 3,2
+    print('-dpdf',['MestWISE.pdf']);
+end
 
 
