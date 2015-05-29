@@ -1,7 +1,8 @@
 clear all;
 close all;
 
-plotToFile = 1;
+plotToFile = 0;
+thrSER = 0;
 
 hohChar = 'C';
 L_vec = 1:5;
@@ -43,6 +44,7 @@ hyper.tau = 1;      % Parameter for s2y ~ IG(tau,nu)
 hyper.nu = 1;       % Parameter for s2y ~ IG(tau,nu)
 
 %% Storing variables
+ALL_RECOV = zeros(2,length(L_vec));
 ALL_MEST = zeros(2,length(L_vec));
 ALL_LLH = zeros(2,length(L_vec));
 ALL_MMSE = zeros(2,length(L_vec));
@@ -65,6 +67,7 @@ for L=L_vec
         LLH = 0;
         MMSE1_indiv = zeros(Nt,1);
         MMSE_tot = 0;
+        recov = 0;
         for it=1:param.storeIters
             [ADER SER_ALL SER_ACT MMSE vec_ord rot desp ADER_indiv SER_ALL_indiv SER_ACT_indiv MMSE_indiv] = compute_error_rates_greedy(data,samplesAll{it},hyper,param);
             for nt=1:Nt
@@ -79,12 +82,14 @@ for L=L_vec
             end
             LLH = LLH+compute_llh(data,samplesAll{it},hyper,param)/param.storeIters;
             MMSE_tot = MMSE_tot+mean(MMSE_indiv(1:Nt))/param.storeIters;
+            recov = recov+sum(SER_ALL_indiv(1:Nt)<=thrSER)/param.storeIters;
         end   
         ALL_MEST(1,c) = mean(M_EST(param.Niter-param.storeIters+1:param.Niter));
         ALL_LLH(1,c) = LLH;
         ALL_MMSE(1,c) = MMSE_tot;
         ALL_MMSE1(1,c) = mean(MMSE1_indiv);
         BOX_MEST(1,c,:) = M_EST(param.Niter-param.storeIters+1:param.Niter);
+        ALL_RECOV(1,c) = recov;
     end
     
     %% Load FFBS
@@ -97,6 +102,7 @@ for L=L_vec
         LLH = 0;
         MMSE1_indiv = zeros(Nt,1);
         MMSE_tot = 0;
+        recov = 0;
         for it=1:param.storeIters
             [ADER SER_ALL SER_ACT MMSE vec_ord rot desp ADER_indiv SER_ALL_indiv SER_ACT_indiv MMSE_indiv] = compute_error_rates_greedy(data,samplesAll{it},hyper,param);
             for nt=1:Nt
@@ -111,12 +117,14 @@ for L=L_vec
             end
             LLH = LLH+compute_llh(data,samplesAll{it},hyper,param)/param.storeIters;
             MMSE_tot = MMSE_tot+mean(MMSE_indiv(1:Nt))/param.storeIters;
+            recov = recov+sum(SER_ALL_indiv(1:Nt)<=thrSER)/param.storeIters;
         end   
         ALL_MEST(2,c) = mean(M_EST(param.Niter-param.storeIters+1:param.Niter));
         ALL_LLH(2,c) = LLH;
         ALL_MMSE(2,c) = MMSE_tot;
         ALL_MMSE1(2,c) = mean(MMSE1_indiv);
         BOX_MEST(2,c,:) = M_EST(param.Niter-param.storeIters+1:param.Niter);
+        ALL_RECOV(2,c) = recov;
     end
 end
 
