@@ -1,4 +1,4 @@
-function simClusterSyn(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,Nparticles,flagParallel,itCluster,simId)
+function simClusterSyn(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,Nparticles,flagParallel,blockNtSize,itCluster,simId)
 
 addpath(genpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab'));
 
@@ -79,7 +79,7 @@ param.gen.sparsityH = 0;
 
 if(simId<=10)
     data = generate_data_bursts(param);
-elseif(simId==20 || simId==21 || simId==22) && (~flagRecovered)
+elseif(simId==20 || simId==21 || simId==22 || simId==24) && (~flagRecovered)
     % Load data from file
     load(['/export/clusterdata/franrruiz87/ModeloMIMO/data/syn/' num2str(simId) '/T' num2str(param.T) '_itCluster' num2str(itCluster) '.mat']);
     data.channel = sqrt(param.gen.varH/2)*channelGen(1:param.Nr,1:param.gen.Nt,1:max(param.gen.L_true));
@@ -115,6 +115,7 @@ param.pgas.returnNsamples = 1;
 param.pgas.maxM = 40;
 param.pgas.particles = zeros(param.pgas.maxM,max(param.pgas.N_PF,param.pgas.N_PG),param.T,'int16');
 param.pgas.flagParallel = flagParallel;  %%% IF 1, IT CAN BE RUN ONLY OVER MULTICORE MACHINES
+param.pgas.blockNtSize = blockNtSize;
 param.ep.eps = 5e-7;
 param.ep.beta = 0.2;
 param.ep.Niter = 15;
@@ -139,7 +140,7 @@ elseif(simId==20)
     param.artifNoise.stepDB = 3;
     param.artifNoise.iniSNR = -12;
     param.artifNoise.finalSNR = SNR;
-elseif(simId==21 || simId==22)
+elseif(simId==21 || simId==22 || simId==24)
     param.infer.addArtificialNoise = 1;
     param.artifNoise.itCycle = 1;
     param.artifNoise.stepDB = 12/6000; % This goes from -12dB to 12dB in 12000 it's
