@@ -11,7 +11,7 @@ maxNt = 20;
 
 
 %%%%%%%%%%%%%%%
-plotToFile = 1;
+plotToFile = 0;
 flagPlotGenie = 1;
 thrSER = 0.1;
 %%%%%%%%%%%%%%%
@@ -34,10 +34,10 @@ MAX_Nt = 10;
   %sweep_var = 'SNR'; sweep_vec = -12:3:0; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Nr'; hold_vec=20; subcarpeta = 'L1/';
   %sweep_var = 'Nt'; sweep_vec = 2:1:6; simId = 21; etiquetaX='#Transmitters'; lugar='NorthWest'; hold_var='SNR'; hold_vec=-3; subcarpeta = 'L1/';
   %sweep_var = 'Nr'; sweep_vec = [2:2:10 15:5:30]; simId = 21; etiquetaX='#Receivers'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-3; subcarpeta = 'L1/';
-  %sweep_var = 'M'; sweep_vec = 2:1:7; simId = 21; etiquetaX='log_2|A|'; lugar='SouthEast'; hold_var='SNR'; hold_vec=12; subcarpeta = 'L1/';
+  sweep_var = 'M'; sweep_vec = 4:1:7; simId = 21; etiquetaX='log_2|A|'; lugar='SouthEast'; hold_var='SNR'; hold_vec=12; subcarpeta = 'L1/'; Niter=350000;
 
   % L = 5:
-  sweep_var = 'SNR'; sweep_vec = -15:3:-6; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5; subcarpeta = 'L5/';
+  %sweep_var = 'SNR'; sweep_vec = -15:3:-6; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5; subcarpeta = 'L5/';
 
   % Sweep Ltrue:
   %sweep_var = 'Ltrue'; sweep_vec = 1:1:6; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9; subcarpeta = 'sweep_Ltrue/';
