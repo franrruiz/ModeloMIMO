@@ -1,4 +1,4 @@
-function simClusterSynGenie(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,Nparticles,flagParallel,itCluster,simId)
+function simClusterSynGenie(T,Nt,Nr,M,Ltrue,L,SNR,Niter,lHead,onOffModel,Nparticles,flagParallel,blockNtSize,itCluster,simId)
 % 
 % Initially, it created variables ADER_PGAS, ADER_BCJR, etc.
 % It was computed with am=0.95, bm=0.05
@@ -98,6 +98,7 @@ param.pgas.returnNsamples = 1;
 param.pgas.maxM = size(data.symbols,1);
 param.pgas.particles = zeros(param.pgas.maxM,max(param.pgas.N_PF,param.pgas.N_PG),param.T,'int16');
 param.pgas.flagParallel = flagParallel;  %%% IF 1, IT CAN BE RUN ONLY OVER MULTICORE MACHINES
+param.pgas.blockNtSize = blockNtSize;
 param.ep.eps = 5e-7;
 param.ep.beta = 0.2;
 param.ep.Niter = 15;
