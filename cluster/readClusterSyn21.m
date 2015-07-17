@@ -11,7 +11,7 @@ maxNt = 20;
 
 
 %%%%%%%%%%%%%%%
-plotToFile = 0;
+plotToFile = 1;
 flagPlotGenie = 1;
 thrSER = 0.1;
 %%%%%%%%%%%%%%%
@@ -38,7 +38,7 @@ EbN0cte = 0;
   %sweep_var = 'M'; sweep_vec = 4:2:10; simId = 24; etiquetaX='log_2|A|'; lugar='SouthEast'; hold_var='SNR'; hold_vec=14; subcarpeta = 'L1/'; Niter=35000; EbN0cte = 1;
   
   % L = 1 (M=10):
-  sweep_var = 'SNR'; sweep_vec = 15:3:21; simId = 24; etiquetaX='log_2|A|'; lugar='SouthEast'; hold_var='M'; hold_vec=10; subcarpeta = 'L1/'; Niter=25000;
+  sweep_var = 'SNR'; sweep_vec = 15:3:24; simId = 24; etiquetaX='-10log(\sigma_y^2)'; lugar='SouthEast'; hold_var='M'; hold_vec=10; subcarpeta = 'L1_M10/'; Niter=25000;
 
   % L = 5:
   %sweep_var = 'SNR'; sweep_vec = -15:3:-6; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5; subcarpeta = 'L5/';
