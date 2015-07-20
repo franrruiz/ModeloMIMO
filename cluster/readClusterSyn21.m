@@ -13,7 +13,7 @@ maxNt = 20;
 %%%%%%%%%%%%%%%
 plotToFile = 1;
 flagPlotGenie = 1;
-thrSER = 0.1;
+thrSER = 0.3;
 %%%%%%%%%%%%%%%
 
 %Base scenario
@@ -38,19 +38,19 @@ EbN0cte = 0;
   %sweep_var = 'M'; sweep_vec = 4:2:10; simId = 24; etiquetaX='log_2|A|'; lugar='SouthEast'; hold_var='SNR'; hold_vec=14; subcarpeta = 'L1/'; Niter=35000; EbN0cte = 1;
   
   % L = 1 (M=10):
-  sweep_var = 'SNR'; sweep_vec = 15:3:24; simId = 24; etiquetaX='-10log(\sigma_y^2)'; lugar='SouthEast'; hold_var='M'; hold_vec=10; subcarpeta = 'L1_M10/'; Niter=25000;
+  %sweep_var = 'SNR'; sweep_vec = 15:3:24; simId = 24; etiquetaX='-10log(\sigma_y^2)'; lugar='SouthEast'; hold_var='M'; hold_vec=10; subcarpeta = 'L1_M10/'; Niter=25000;
 
   % L = 5:
   %sweep_var = 'SNR'; sweep_vec = -15:3:-6; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5; subcarpeta = 'L5/';
 
   % L = 5 (new):
-  %sweep_var = 'SNR'; sweep_vec = -21:3:-9; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5; subcarpeta = 'L5/';
+  %sweep_var = 'SNR'; sweep_vec = -18:3:-9; simId = 21; etiquetaX='-10log(\sigma_y^2)'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=5; L=5; subcarpeta = 'L5/';
 
   % Sweep Ltrue:
-  %sweep_var = 'Ltrue'; sweep_vec = 1:1:6; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9; subcarpeta = 'sweep_Ltrue/';
+  %sweep_var = 'Ltrue'; sweep_vec = 1:1:5; simId = 21; etiquetaX='L'; lugar='NorthEast'; hold_var='SNR'; hold_vec=-9; subcarpeta = 'sweep_Ltrue/';
   
   % Sweep L:
-  %sweep_var = 'L'; sweep_vec = 1:1:5; simId = 23; etiquetaX='L'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=1; simId = 23; subcarpeta = 'sweep_L/';
+  sweep_var = 'L'; sweep_vec = 1:1:5; simId = 23; etiquetaX='L'; lugar='NorthEast'; hold_var='Ltrue'; hold_vec=1; simId = 23; subcarpeta = 'sweep_L/';
 
 marcadores = {'+','^','o','x'};
 estilos = {'-','--',':','-.'};
@@ -58,6 +58,13 @@ colores = {'m','b','k','r'};
 leyenda = {'IFFSM','G-PGAS','G-BCJR','G-FFBS'};
 anchoSm = 4; altoSm = 3;  % Before: 3,2
 anchoLar = 5; altoLar = 3.5;
+if(strcmp(sweep_var,'Nt'))
+    MAXNT = max(sweep_vec);
+elseif(strcmp(hold_var,'Nt'))
+    MAXNT = max(hold_vec);
+else
+    MAXNT = Nt;
+end
 
 %% Initialize metrics of interest
 ALL_ADER = zeros(maxItCluster,Niter+1,length(sweep_vec),length(hold_vec));
@@ -658,6 +665,8 @@ for holdV=hold_vec
     ylabel('M_+');
     xlabel(etiquetaX);
     set(gca,'Xtick',1:length(sweep_vec));
+    set(gca,'YLim',[0 max(boxMEST(:))+1]);
+    set(gca,'YTick',0:max(boxMEST(:)));
     if(simId==2 && strcmp(sweep_var,'SNR'))
         set(gca,'XTickLabel',sweep_vec-13);
     else
@@ -683,6 +692,8 @@ for holdV=hold_vec
     ylabel('Recovered Tx');
     xlabel(etiquetaX);
     set(gca,'Xtick',1:length(sweep_vec));
+    set(gca,'YLim',[0 MAXNT+1]);
+    set(gca,'YTick',0:MAXNT);
     if(simId==2 && strcmp(sweep_var,'SNR'))
         set(gca,'XTickLabel',sweep_vec-13);
     else

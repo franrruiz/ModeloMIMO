@@ -18,7 +18,7 @@ onOffModel = 0;
 simId = 21;   % simId=21 for these experiments
 
 maxNiter = 10000;
-thrSER = 0.1;
+thrSER = 0.3;
 
 %% Vary the number of particles
 part_vec = [300 1000 3000 10000 30000];
