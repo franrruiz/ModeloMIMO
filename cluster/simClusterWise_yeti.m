@@ -26,7 +26,7 @@ param.Nr = Nr;                        % Number of receivers
 param.T  = T;                         % Length of the sequence
 % M for the M-QAM constellation
 M = 2^M;
-param.constellation = qammod(0:M-1,M,[],'gray');
+param.constellation = precomputed_qammod(M);
 param.constellation = param.constellation/sqrt(mean(abs(param.constellation.^2)));
 param.flag0 = 1;    % Consider symbol 0 as part of the constellation (if false, transmitters are always active)
 param.L = L;        % Channel memory to be considered during inference
