@@ -1,4 +1,5 @@
-function simClusterWise(T,Nt,Nr,M,L,Niter,lHead,onOffModel,Nparticles,flagParallel,itCluster,simId)
+function simClusterWise(T,Nt,Nr,M,L,Niter,lHead,onOffModel,Nparticles,blockNtSize,flagParallel,itCluster,simId)
+% Use Niter=30000, Nparticles=3000, simId=3
 
 addpath(genpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab'));
 
@@ -110,6 +111,7 @@ param.pgas.returnNsamples = 1;
 param.pgas.maxM = 40;
 param.pgas.particles = zeros(param.pgas.maxM,max(param.pgas.N_PF,param.pgas.N_PG),param.T,'int16');
 param.pgas.flagParallel = flagParallel;  %%% IF 1, IT CAN BE RUN ONLY OVER MULTICORE MACHINES
+param.pgas.blockNtSize = blockNtSize;
 param.ep.eps = 5e-7;
 param.ep.beta = 0.2;
 param.ep.Niter = 15;
@@ -208,10 +210,14 @@ if(~flagRecovered)
     MMSE = zeros(1,param.Niter+1);
     LLH = zeros(1,param.Niter+1);
     M_EST = zeros(1,param.Niter+1);
+    T_ELAPSED = zeros(1,param.Niter+1);
     samplesAll = cell(1,param.storeIters);
 end
 for it=itInit+1:param.Niter
     %% Algorithm
+    
+    % Save the current time
+    t_ini = tic;
     
     % Step 0a) Add artificial noise
     if(it<=20000)
@@ -271,7 +277,10 @@ for it=itInit+1:param.Niter
         % -Sample the variance of the channel coefficients
         samples.s2H = sample_post_s2H(data,samples,hyper,param);
     end
-        
+    
+    %% Compute time elapsed
+    T_ELAPSED(it) = toc(t_ini);
+    
     %% Store current sample
     if(it>param.Niter-param.storeIters)
         samplesAll{it-param.Niter+param.storeIters} = samples;
@@ -285,7 +294,7 @@ for it=itInit+1:param.Niter
     
     %% Save temporary result file
     if(mod(it,param.saveCycle)==0)
-        save([saveFile '/it' num2str(it) '.mat'],'data','init','samples','ADER','SER_ALL','SER_ACT','MMSE','LLH','M_EST','samplesAll');
+        save([saveFile '/it' num2str(it) '.mat'],'data','init','samples','ADER','SER_ALL','SER_ACT','MMSE','LLH','M_EST','T_ELAPSED','samplesAll');
         % If successfully saved, delete previous temporary file
         if(exist([saveFile '/it' num2str(it-param.saveCycle) '.mat'],'file'))
             delete([saveFile '/it' num2str(it-param.saveCycle) '.mat']);
@@ -319,7 +328,7 @@ LLH(param.Niter+1) = compute_llh(data,auxSample,hyper,param);
 M_EST(param.Niter+1) = sum(sum(auxSample.seq~=0,2)>0);
 
 %% Save result
-save([saveFile '.mat'],'data','init','samples','ADER','SER_ALL','SER_ACT','MMSE','LLH','M_EST','samplesAll','*_indiv');
+save([saveFile '.mat'],'data','init','samples','ADER','SER_ALL','SER_ACT','MMSE','LLH','M_EST','samplesAll','T_ELAPSED','*_indiv');
 
 % If successfully saved, detele previous temporary file
 if(exist([saveFile '/it' num2str(param.Niter) '.mat'],'file'))
