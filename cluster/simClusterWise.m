@@ -1,4 +1,4 @@
-function simClusterWise(T,Nt,Nr,M,L,Niter,lHead,onOffModel,Nparticles,blockNtSize,flagParallel,itCluster,simId)
+function simClusterWise(T,Nt,Nr,M,L,Niter,lHead,onOffModel,Nparticles,blockNtSize,stepDB_thr,stepDB_ini,stepDB_end,flagParallel,itCluster,simId)
 % Use Niter=30000, Nparticles=3000, simId=3
 
 addpath(genpath('/export/clusterdata/franrruiz87/ModeloMIMO/matlab'));
@@ -220,10 +220,10 @@ for it=itInit+1:param.Niter
     t_ini = tic;
     
     % Step 0a) Add artificial noise
-    if(it<=20000)
-        param.artifNoise.stepDB = 0.002;
+    if(it<=stepDB_thr)
+        param.artifNoise.stepDB = stepDB_ini;
     else
-        param.artifNoise.stepDB = 0.008;
+        param.artifNoise.stepDB = stepDB_end;
     end
     if(param.infer.addArtificialNoise)
         if(it==1)

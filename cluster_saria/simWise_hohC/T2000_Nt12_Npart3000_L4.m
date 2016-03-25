@@ -1,7 +1,7 @@
 cd /export/usuarios01/franrruiz87/simMIMO
 
 T = 2000;
-Nt = 16;
+Nt = 12;
 Nr = 12;
 M = 2;
 L = 4;
