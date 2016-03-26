@@ -1,0 +1,24 @@
+gtsdata00
++8x Nt9,L5
+
+gtsdata01
++8x Nt12,L5
+
+gtsdata02
++8x Nt16,L5
+
+gtsdata03
++8x Nt9,L4
+
+gtsdata04
++8x Nt12,L4
+
+gtsdata05
++2x Nt9,L1
++2x Nt12,L1
++2x Nt9,L2
++2x Nt12,L2
+
+kaliya
++4x Nt9,L3
++4x Nt12,L3
